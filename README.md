@@ -106,4 +106,59 @@ Assembly Ppr, Nps, Hga with Pacbio HIFI, Tell-seq, Hi-c
 
     python run_pipeline.py -a contigs.fasta -l contigs.fasta.fai -b alignment.bed -e DNASE -o scaffolds 
 
+#### 8.HGT
+	
+	conda activate BRAKER
+	
+### 8.1 get pro.seq from genome by gff
 
+	gffread ../01braker/braker/braker.gtf -g /home/shangao/Scratch/hi-c/sala2/Ppr2/scaffolds/scaffolds_FINAL.fasta -y Ppr.pep
+
+### 8.2 prepare the db and tax files
+
+	bd: /home/shangao/Data/HGT_db/
+	perl -lane 'if(/^>(\w+)\s.+TaxID\=(\d+)/){print "$1 $2"}' <(zcat uniref90.fasta.gz) | gzip > uniref90.fasta.taxlist.gz
+	diamond blastp --sensitive --index-chunks 1 -k 500 -e 1e-5 -p 32 -q Ppr.pep -d /home/shangao/Data/HGT_db/uniref90.dmnd -a Ppr_diamond_results
+	cat <(zcat /home/shangao/Data/HGT_db/uniref90.fasta.taxlist.gz) <(diamond view -a Ppr_diamond_results.daa)|perl -lane 'if(@F==2){$tax{$F[0]}=$F[1];}else{if(exists($tax{$F[1]})){print join("\t",@F,$tax{$F[1]});} else {print join("\t",@F,"NA");}}'| gzip > diamond_results.daa.taxid.gz
+	
+### 8.3 get results
+
+	/home/shangao/script/hgt/diamond_to_HGT_candidates.pl -i diamond_results.daa.taxid.gz -f Ppr.pep -p /home/shangao/Data/HGT_db/taxdump
+	
+The program outputs 3 files, suffixed with the tags:
+
+  HGT_results: hU, AI and CHS scores for all query proteins.
+  HGT_candidates: All queries which show evidence from both hU (or AI) and CHS above the specifed thresholds (defaults are >=30 for hU, >=90% for CHS).
+  HGT_warnings: Any non-fatal warnings detected during the run. Worth checking, but most warnings can probably safely be ignored.
+  
+ when you meet some perl lib problem get out of conda
+ 
+ ### 8.4 HGT_candidates_to_fasta
+ 
+ 	/home/shangao/script/hgt/HGT_candidates_to_fasta.pl -i diamond_results.daa.taxid.gz -c diamond_results.daa.taxid.gz.HGT_candidates.Metazoa.hU30.CHS90.txt -u /home/shangao/Data/HGT_db/uniref90.fasta -f Ppr.pep -p /home/shangao/Data/HGT_db/taxdump
+	
+	mkdir ../mafft_alns
+	for f in *.fasta; do echo $f; mafft --auto --quiet --thread 8 $f > ../mafft_alns/${f}.mafft; done
+	
+	mkdir processed_files
+	COUNT=1;
+	
+	## iqtree commands
+	for file in *mafft;
+	   do echo $COUNT: $file;
+	   iqtree-omp -s $file -st AA -nt 16 -quiet -bb 1000 -m TESTNEW -msub nuclear
+	   mv $file processed_files/;
+	   COUNT=$[COUNT+1];
+	done
+	
+	mkdir iqtree treefiles
+	mv *treefile treefiles/
+	mv *bionj *gz *contree *iqtree *log *mldist *model *nex iqtree/
+	
+	
+	
+	
+	
+	
+	
+	
