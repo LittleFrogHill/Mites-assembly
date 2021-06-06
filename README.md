@@ -155,9 +155,9 @@ The program outputs 3 files, suffixed with the tags:
 	mv *treefile treefiles/
 	mv *bionj *gz *contree *iqtree *log *mldist *model *nex iqtree/
 	
-	
-	
-	
+## 9. JCVI_Synteny
+		https://github.com/tanghaibao/jcvi/wiki/MCscan-(Python-version)
+		https://github.com/tanghaibao/jcvi
 	
 	
 	
