@@ -160,5 +160,7 @@ The program outputs 3 files, suffixed with the tags:
 		https://github.com/tanghaibao/jcvi
 	
 	
-	
-	
+	python /NVME/Software/3d-dna/juicer/misc/generate_site_positions.py HindIII Ppr_instagrall Ppr_instagrall.fa
+
+	awk 'BEGIN{OFS="\t"}{print $1, $NF}' Ppr_instagrall_HindIII.txt > Ppr_instagrall.chrom.sizes
+
