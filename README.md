@@ -164,3 +164,9 @@ The program outputs 3 files, suffixed with the tags:
 
 	awk 'BEGIN{OFS="\t"}{print $1, $NF}' Ppr_instagrall_HindIII.txt > Ppr_instagrall.chrom.sizes
 
+	/NVME/Software/3d-dna/juicer/scripts/juicer.sh -g Ppr -s none \
+	-z reference/Ppr.fa -t 40 \
+	-p reference/Ppr.genome.chrom.size \
+	-D /NVME/Software/3d-dna/juicer 
+	
+	/NVME/Software/3d-dna/run-asm-pipeline.sh -r 0 reference/Ppr.fa aligned/merged_nodups.txt
