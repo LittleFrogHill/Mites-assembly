@@ -106,7 +106,7 @@ Assembly Ppr, Nps, Hga with Pacbio HIFI, Tell-seq, Hi-c
 
     python run_pipeline.py -a contigs.fasta -l contigs.fasta.fai -b alignment.bed -e DNASE -o scaffolds 
 
-#### 8.HGT
+#### 8.HGT  https://github.com/reubwn/hgt
 	
 	conda activate BRAKER
 	
