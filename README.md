@@ -170,3 +170,8 @@ The program outputs 3 files, suffixed with the tags:
 	-D /NVME/Software/3d-dna/juicer 
 	
 	/NVME/Software/3d-dna/run-asm-pipeline.sh -r 0 reference/Ppr.fa aligned/merged_nodups.txt
+	
+	
+## 10. BRAKER
+
+	the hyperparameters themselves.  Evidence sources in a standard BRAKER1 and BRAKER2 output138are:  protein database (P), EST database (E), combined EST/protein database (C), and manual139anchored (M). The default weights for these arewP= 0.1,wE= 10,wC= 5 andwM= 1.  A140transcript has low evidence support in this default setting if the fraction of supported introns is less141than 0.75 and the supported start/stop-codon fraction is less than 1.0.  The score specific thresholds142are1= 0,2= 0.5,3= 25,4= 10.  We have shown that TSEBRA using default parameters143performs with high accuracy across several species, see Results and discussion	
