@@ -1,12 +1,14 @@
 # Mites-assembly
 Assembly Ppr, Nps, Hga with Pacbio HIFI, Tell-seq, Hi-c
 ## 1.hifiasm assembly the Pacbio HIFI data
-  Ppr for example
-  HIFI+Hi-c data
-  	/home/shangao/software/hifiasm-0.16.1/hifiasm -o test -t 50 --h1 /home/shangao/Scratch/hi-c/dovetail/Ppr_new/merge/Ppr1_1.fq.gz --h2 /home/shangao/Scratch/hi-c/dovetail/Ppr_new/merge/Ppr1_2.fq.gz /home/shangao/Data/../mites/reads/PacBio/Ppr/m64093_200831_134054.Q20.fastq.gz
- 	
-  Only HIFI
-	/home/shangao/software/hifiasm-0.16.1/hifiasm -o test -t 50 /home/shangao/Data/../mites/reads/PacBio/Ppr/m64093_200831_134054.Q20.fastq.gz
+	Ppr for example
+	  HIFI+Hi-c data
+	  
+	  	/home/shangao/software/hifiasm-0.16.1/hifiasm -o test -t 50 --h1 /home/shangao/Scratch/hi-c/dovetail/Ppr_new/merge/Ppr1_1.fq.gz --h2 /home/shangao/Scratch/hi-c/dovetail/Ppr_new/merge/Ppr1_2.fq.gz /home/shangao/Data/../mites/reads/PacBio/Ppr/m64093_200831_134054.Q20.fastq.gz
+	 	
+	  Only HIFI
+		
+		/home/shangao/software/hifiasm-0.16.1/hifiasm -o test -t 50 /home/shangao/Data/../mites/reads/PacBio/Ppr/m64093_200831_134054.Q20.fastq.gz
 
 ## 2.Tell-seq tools for the linked reads
   Using the docker version of Tell-reads, Tell-link, Tell-sort 
@@ -17,14 +19,14 @@ Assembly Ppr, Nps, Hga with Pacbio HIFI, Tell-seq, Hi-c
     
 ### 2.2 Tell-read filter the raw data
 	    
-/home/shangao/Software/TELLSeq/prerelease/tellread-release/run_tellread.sh \
+	/home/shangao/Software/TELLSeq/prerelease/tellread-release/run_tellread.sh \
 	-i /RAID/Data/mites/reads/TELLSeq/bcl_Tell-seq/raw_data01/201211_A00685_0102_BHWLNMDRXX_Dezember4/ \
 	-o /RAID/Data/shangao/hifiasm_tell-seq/Ppr/test/01 \
 	-f /home/shangao/Data/hifiasm/test_Ppr/new_hifiasm/0.16_new/only_hifi/genome \
 	-s T502 \
 	-g Ppr
 	
-/home/shangao/Software/TELLSeq/prerelease/tellread-release/run_tellread.sh \
+	/home/shangao/Software/TELLSeq/prerelease/tellread-release/run_tellread.sh \
 	-i /RAID/Data/mites/reads/TELLSeq/bcl_Tell-seq/raw_data02/JB01/210813_A00620_0167_AHHFG5DRXY_August6/ \
 	-o /RAID/Data/shangao/hifiasm_tell-seq/Ppr/test/02 \
 	-f /home/shangao/Data/hifiasm/test_Ppr/new_hifiasm/0.16_new/only_hifi/genome \
