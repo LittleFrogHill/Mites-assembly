@@ -2,8 +2,11 @@
 Assembly Ppr, Nps, Hga with Pacbio HIFI, Tell-seq, Hi-c
 ## 1.hifiasm assembly the Pacbio HIFI data
   Ppr for example
-  
-    /home/shangao/Software/Assembly/hifiasm/hifiasm -o test.asm -t 32 /home/shangao/Data/mites/reads/PacBio/Ppr/m64093_200831_134054.Q20.fastq.gz
+  HIFI+Hi-c data
+  	/home/shangao/software/hifiasm-0.16.1/hifiasm -o test -t 50 --h1 /home/shangao/Scratch/hi-c/dovetail/Ppr_new/merge/Ppr1_1.fq.gz --h2 /home/shangao/Scratch/hi-c/dovetail/Ppr_new/merge/Ppr1_2.fq.gz /home/shangao/Data/../mites/reads/PacBio/Ppr/m64093_200831_134054.Q20.fastq.gz
+ 	
+  Only HIFI
+	/home/shangao/software/hifiasm-0.16.1/hifiasm -o test -t 50 /home/shangao/Data/../mites/reads/PacBio/Ppr/m64093_200831_134054.Q20.fastq.gz
 
 ## 2.Tell-seq tools for the linked reads
   Using the docker version of Tell-reads, Tell-link, Tell-sort 
@@ -13,14 +16,21 @@ Assembly Ppr, Nps, Hga with Pacbio HIFI, Tell-seq, Hi-c
     /home/shangao/Software/TELLSeq/prerelease/tellread-release/generateGenomeIndexBed.sh ./Ppr/Ppr.fa
     
 ### 2.2 Tell-read filter the raw data
+	    
+/home/shangao/Software/TELLSeq/prerelease/tellread-release/run_tellread.sh \
+	-i /RAID/Data/mites/reads/TELLSeq/bcl_Tell-seq/raw_data01/201211_A00685_0102_BHWLNMDRXX_Dezember4/ \
+	-o /RAID/Data/shangao/hifiasm_tell-seq/Ppr/test/01 \
+	-f /home/shangao/Data/hifiasm/test_Ppr/new_hifiasm/0.16_new/only_hifi/genome \
+	-s T502 \
+	-g Ppr
+	
+/home/shangao/Software/TELLSeq/prerelease/tellread-release/run_tellread.sh \
+	-i /RAID/Data/mites/reads/TELLSeq/bcl_Tell-seq/raw_data02/JB01/210813_A00620_0167_AHHFG5DRXY_August6/ \
+	-o /RAID/Data/shangao/hifiasm_tell-seq/Ppr/test/02 \
+	-f /home/shangao/Data/hifiasm/test_Ppr/new_hifiasm/0.16_new/only_hifi/genome \
+	-s T502 \
+	-g Ppr
 
-    /home/shangao/Software/TELLSeq/prerelease/tellread-release/run_tellread.sh \
-	    -i /home/shangao/Data/bcl_Tell-seq/raw_data_new/201211_A00685_0102_BHWLNMDRXX_Dezember4/ \
-	    -o /home/shangao/Data/hifiasm_tell-seq/test_Ppr_new \
-	    -f /home/shangao/Scratch/hifiasm/genome \
-	    -s T501 \
-	    -g Ppr_new
-  
 ### 2.3 Convert the reads th linked Reads
 
     /home/shangao/Software/TELLSeq/conversion_tool/ust10x \
@@ -102,26 +112,119 @@ Assembly Ppr, Nps, Hga with Pacbio HIFI, Tell-seq, Hi-c
     
     /home/shangao/Software/dovetail_tools/contact_map.sh ./Ppr.PT.pairs.gz ~/Scratch/gaoshan/scaff10x/Ppr_result/output_scaffolds.fasta Ppr 50
 
-### 7.2 SALSA for improve assembly
-
+### 7.2 improve assembly
+	SALSA
     python run_pipeline.py -a contigs.fasta -l contigs.fasta.fai -b alignment.bed -e DNASE -o scaffolds 
 
-#### 8.HGT  https://github.com/reubwn/hgt
+	3D-DNA
+	
+	python /NVME/Software/3d-dna/juicer/misc/generate_site_positions.py HindIII Ppr_instagrall Ppr_instagrall.fa
+	
+        awk 'BEGIN{OFS="\t"}{print $1, $NF}' Ppr_instagrall_HindIII.txt > Ppr_instagrall.chrom.sizes
+	
+	/NVME/Software/3d-dna/juicer/scripts/juicer.sh -g Ppr -s none \
+	-z reference/Ppr.fa -t 40 \
+	-p reference/Ppr.genome.chrom.size \
+	-D /NVME/Software/3d-dna/juicer 
+	
+/NVME/Software/3d-dna/run-asm-pipeline.sh -r 0 reference/Ppr.fa aligned/merged_nodups.txt
+
+#### 8. BRAKER
+### 8.1 mapping
+	
+		/home/shangao/Software/STAR-2.7.8a/source/STAR \
+		    --runThreadN 40 \
+		    --runMode genomeGenerate \
+		    --genomeDir STAR \
+		    --genomeSAindexNbases 12 \
+		    --genomeFastaFiles /home/shangao/Data/EDTA/Ppr/Ppr_instagrall/Ppr_instagrall.polished.fa.mod.MAKER.masked 
+		
+		/home/shangao/Software/STAR-2.7.8a/source/STAR \
+			--genomeDir STAR \
+			--runThreadN 40 \
+			--readFilesIn /RAID/Data/mites/transcriptomes/RNA_annotation/150360_R1.fq.gz, /RAID/Data/mites/transcriptomes/RNA_annotation/150360_R2.fq.gz \
+			--readFilesCommand zcat \
+			--outFileNamePrefix Ppr \
+			--outSAMtype BAM SortedByCoordinate \
+			--outBAMsortingThreadN 10 \
+			--outSAMstrandField intronMotif \
+			--outFilterIntronMotifs RemoveNoncanonical 
+		
+		#ulimit -n 10000
+		
+		/home/shangao/Software/STAR-2.7.8a/source/STAR \
+		        --genomeDir STAR \
+		        --runThreadN 40 \
+		        --readFilesIn /RAID/Data/mites/transcriptomes/RNA_annotation/clean_data/SRR4039022_1_val_1.fq.gz, /RAID/Data/mites/transcriptomes/RNA_annotation/clean_data/SRR4039022_2_val_2.fq.gz \
+		        --readFilesCommand zcat \
+		        --outFileNamePrefix Ppr_down \
+		        --outSAMtype BAM SortedByCoordinate \
+		        --outBAMsortingThreadN 10 \
+		        --outSAMstrandField intronMotif \
+		        --outFilterIntronMotifs RemoveNoncanonical
+
+### 8.2 BRAKER
+
+	conda activate BRAKER	
+	
+	braker1:
+	braker.pl --cores 40 --species=Ppr --genome=/home/shangao/Data/EDTA/Ppr/Ppr_instagrall/Ppr_instagrall.polished.fa.mod.MAKER.masked \
+	 --softmasking --bam=/home/shangao/Scratch/breaker/000rna-seq/Ppr/Ppr_instagrall/PprAligned.sortedByCoord.out.bam \
+	 --gff3 --useexisting --GENEMARK_PATH=/home/shangao/Software/BrAKER/gmes_linux_64/
+	
+	braker2:
+	braker.pl --cores 40 --species=Ppr1 --genome=/home/shangao/Data/EDTA/Ppr/Ppr_instagrall/Ppr_instagrall.polished.fa.mod.MAKER.masked \
+	 --softmasking \
+	 --gff3 --GENEMARK_PATH=/home/shangao/Software/BrAKER/gmes_linux_64/ \
+	 --prot_seq /RAID/Data/databases/braker_db/proteins.fasta --epmode --workingdir=braker2_out --PROTHINT_PATH=/home/shangao/software/ProtHint-2.6.0/bin/
+
+	TSEBRA:
+	#/home/shangao/Software/TSEBRA/bin/fix_gtf_ids.py --gtf ../../test1/braker/braker.gtf --out braker1.fix.gtf
+	
+	#/home/shangao/Software/TSEBRA/bin/fix_gtf_ids.py --gtf ../braker2_out/braker.gtf --out braker2.fix.gtf
+	
+	the hyperparameters themselves.  Evidence sources in a standard BRAKER1 and BRAKER2 output138are:  protein database (P), EST database (E), combined EST/protein database (C), and manual139anchored (M). The default weights for these arewP= 0.1,wE= 10,wC= 5 andwM= 1.  A140transcript has low evidence support in this default setting if the fraction of supported introns is less141than 0.75 and the supported start/stop-codon fraction is less than 1.0.  The score specific thresholds142are•1= 0,•2= 0.5,•3= 25,•4= 10.  We have shown that TSEBRA using default parameters143performs with high accuracy across several species, see Results and discussion  
+	
+	/home/shangao/Software/TSEBRA/bin/tsebra.py -g braker1.fix.gtf,braker2.fix.gtf \
+		-c /home/shangao/Software/TSEBRA/config/default.cfg \
+		-e ../../test1/braker/hintsfile.gff,../braker2_out/hintsfile.gff \
+        	-o braker1+2_combined.gtf
+	
+	cat default.cfg
+		# Weight for each hint source
+		# Values have to be >= 0
+		P 0.1
+		E 20
+		C 5
+		M 1
+		# Required fraction of supported introns or supported start/stop-codons for a transcript
+		# Values have to be in [0,1]
+		intron_support 0.75
+		stasto_support 1
+		# Allowed difference for each feature 
+		# Values have to be in [0,1]
+		e_1 0
+		e_2 0.5
+		# Values have to be >0
+		e_3 25
+		e_4 10
+	
+#### 9.HGT  https://github.com/reubwn/hgt
 	
 	conda activate BRAKER
 	
-### 8.1 get pro.seq from genome by gff
+### 9.1 get pro.seq from genome by gff
 
 	gffread ../01braker/braker/braker.gtf -g /home/shangao/Scratch/hi-c/sala2/Ppr2/scaffolds/scaffolds_FINAL.fasta -y Ppr.pep
 
-### 8.2 prepare the db and tax files
+### 9.2 prepare the db and tax files
 
 	bd: /home/shangao/Data/HGT_db/
 	perl -lane 'if(/^>(\w+)\s.+TaxID\=(\d+)/){print "$1 $2"}' <(zcat uniref90.fasta.gz) | gzip > uniref90.fasta.taxlist.gz
 	diamond blastp --sensitive --index-chunks 1 -k 500 -e 1e-5 -p 32 -q Ppr.pep -d /home/shangao/Data/HGT_db/uniref90.dmnd -a Ppr_diamond_results
 	cat <(zcat /home/shangao/Data/HGT_db/uniref90.fasta.taxlist.gz) <(diamond view -a Ppr_diamond_results.daa)|perl -lane 'if(@F==2){$tax{$F[0]}=$F[1];}else{if(exists($tax{$F[1]})){print join("\t",@F,$tax{$F[1]});} else {print join("\t",@F,"NA");}}'| gzip > diamond_results.daa.taxid.gz
 	
-### 8.3 get results
+### 9.3 get results
 
 	/home/shangao/script/hgt/diamond_to_HGT_candidates.pl -i diamond_results.daa.taxid.gz -f Ppr.pep -p /home/shangao/Data/HGT_db/taxdump
 	
@@ -133,7 +236,7 @@ The program outputs 3 files, suffixed with the tags:
   
  when you meet some perl lib problem get out of conda
  
- ### 8.4 HGT_candidates_to_fasta
+ ### 9.4 HGT_candidates_to_fasta
  
  	/home/shangao/script/hgt/HGT_candidates_to_fasta.pl -i diamond_results.daa.taxid.gz -c diamond_results.daa.taxid.gz.HGT_candidates.Metazoa.hU30.CHS90.txt -u /home/shangao/Data/HGT_db/uniref90.fasta -f Ppr.pep -p /home/shangao/Data/HGT_db/taxdump
 	
@@ -155,23 +258,8 @@ The program outputs 3 files, suffixed with the tags:
 	mv *treefile treefiles/
 	mv *bionj *gz *contree *iqtree *log *mldist *model *nex iqtree/
 	
-## 9. JCVI_Synteny
+## 10. JCVI_Synteny
 		https://github.com/tanghaibao/jcvi/wiki/MCscan-(Python-version)
 		https://github.com/tanghaibao/jcvi
-	
-	
-	python /NVME/Software/3d-dna/juicer/misc/generate_site_positions.py HindIII Ppr_instagrall Ppr_instagrall.fa
 
-	awk 'BEGIN{OFS="\t"}{print $1, $NF}' Ppr_instagrall_HindIII.txt > Ppr_instagrall.chrom.sizes
-
-	/NVME/Software/3d-dna/juicer/scripts/juicer.sh -g Ppr -s none \
-	-z reference/Ppr.fa -t 40 \
-	-p reference/Ppr.genome.chrom.size \
-	-D /NVME/Software/3d-dna/juicer 
-	
-	/NVME/Software/3d-dna/run-asm-pipeline.sh -r 0 reference/Ppr.fa aligned/merged_nodups.txt
-	
-	
-## 10. BRAKER
-
-	the hyperparameters themselves.  Evidence sources in a standard BRAKER1 and BRAKER2 output138are:  protein database (P), EST database (E), combined EST/protein database (C), and manual139anchored (M). The default weights for these arewP= 0.1,wE= 10,wC= 5 andwM= 1.  A140transcript has low evidence support in this default setting if the fraction of supported introns is less141than 0.75 and the supported start/stop-codon fraction is less than 1.0.  The score specific thresholds142are1= 0,2= 0.5,3= 25,4= 10.  We have shown that TSEBRA using default parameters143performs with high accuracy across several species, see Results and discussion	
+	/home/shangao/lastz-distrib/bin/lastz ../test.p_ctg.fa[multiple] ../test.asm.a_ctg.fa --gfextend --chain --gapped --format=blastn > lastzfomat6.out.1
