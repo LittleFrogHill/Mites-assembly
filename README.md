@@ -265,3 +265,9 @@ The program outputs 3 files, suffixed with the tags:
 		https://github.com/tanghaibao/jcvi
 
 	/home/shangao/lastz-distrib/bin/lastz ../test.p_ctg.fa[multiple] ../test.asm.a_ctg.fa --gfextend --chain --gapped --format=blastn > lastzfomat6.out.1
+	
+## 11. circos 
+
+
+
+## 12. SV
