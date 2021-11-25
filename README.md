@@ -74,6 +74,20 @@ Assembly Ppr, Nps, Hga with Pacbio HIFI, Tell-seq, Hi-c
 ## 6. Blobtools2 
 
     conda activate btk_env
+    
+    /home/jbast/anaconda3/envs/EDTA/bin/blastn -db /RAID/Data/databases/nt/nt \
+       -query ../Ppr_instagrall.polished.fa \
+       -outfmt "6 qseqid staxids bitscore std" \
+       -max_target_seqs 1 \
+       -max_hsps 1 \
+       -evalue 1e-25 \
+       -num_threads 32 \
+       -out Ppr.ncbi.blastn.out
+      
+    /home/shangao/Software/minimap2/minimap2 -ax map-pb \
+	-t 40 ../Ppr_instagrall.polished.fa \
+	/home/shangao/Data/../mites/reads/PacBio/Ppr/m64093_200831_134054.Q20.fastq.gz \
+	| samtools sort -@16 -O BAM -o Ppr_Pacbio1.bam -
 
 ### 6.1 Create 
 
