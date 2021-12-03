@@ -147,6 +147,8 @@ Assembly Ppr, Nps, Hga with Pacbio HIFI, Tell-seq, Hi-c
 
 	seqkit grep -v -f filter.list Ppr.FINAL.sort.fasta > Ppr.FINAL.fa
 	seqkit fx2tab Ppr.FINAL.fa -l -g -n -i -H
+	![image](https://user-images.githubusercontent.com/34407101/144658065-e1b75f1e-97ff-4be4-808c-c085ce8a5efc.png)
+
 
 #### 8. BRAKER
 ### 8.1 mapping
