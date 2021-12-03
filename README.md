@@ -143,7 +143,10 @@ Assembly Ppr, Nps, Hga with Pacbio HIFI, Tell-seq, Hi-c
 	-p reference/Ppr.genome.chrom.size \
 	-D /NVME/Software/3d-dna/juicer 
 	
-/NVME/Software/3d-dna/run-asm-pipeline.sh -r 0 reference/Ppr.fa aligned/merged_nodups.txt
+	/NVME/Software/3d-dna/run-asm-pipeline.sh -r 0 reference/Ppr.fa aligned/merged_nodups.txt
+
+	seqkit grep -v -f filter.list Ppr.FINAL.sort.fasta > Ppr.FINAL.fa
+	seqkit fx2tab Ppr.FINAL.fa -l -g -n -i -H
 
 #### 8. BRAKER
 ### 8.1 mapping
@@ -273,6 +276,9 @@ The program outputs 3 files, suffixed with the tags:
 	mkdir iqtree treefiles
 	mv *treefile treefiles/
 	mv *bionj *gz *contree *iqtree *log *mldist *model *nex iqtree/
+	
+	Rscript /home/shangao/script/hgt/analyse_trees.R -q anno -p ~/Scratch/breaker/04hgt/Ppr/instagraal/TSEBRA/mafft_alns/treefiles
+
 	
 ## 10. JCVI_Synteny
 		https://github.com/tanghaibao/jcvi/wiki/MCscan-(Python-version)
