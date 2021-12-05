@@ -283,7 +283,7 @@ The program outputs 3 files, suffixed with the tags:
 	
 	Rscript /home/shangao/script/hgt/analyse_trees.R -q anno -p ~/Scratch/breaker/04hgt/Ppr/instagraal/TSEBRA/mafft_alns/treefiles
 
-
+	/home/bonkis/anaconda2/pkgs/python-2.7.16-h9bab390_7/bin/python /home/shangao/software/gff3sort/Gtf2GFF.py braker1+2_combined_rmHiC_scaffold_10_changeHiC_scaffold_11.sort.rename.gtf
 	
 ## 10. JCVI_Synteny
 		https://github.com/tanghaibao/jcvi/wiki/MCscan-(Python-version)
