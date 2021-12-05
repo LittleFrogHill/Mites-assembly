@@ -279,8 +279,17 @@ The program outputs 3 files, suffixed with the tags:
 	mv *treefile treefiles/
 	mv *bionj *gz *contree *iqtree *log *mldist *model *nex iqtree/
 	
-	/home/shangao/script/hgt/get_location_of_HGT_candidates.pl -i diamond_results.daa.taxid.gz.HGT_results.Metazoa.txt -g  /RAID/Data/mites/genomes/Ppr/version03/Ppr.gtf -f Ppr.pep
-	
+	GFF format
+	chr1    AUGUSTUS        gene    2843    3493    .       +       .       ID=Ppr_g1
+	chr1    AUGUSTUS        transcript      2843    3493    .       +       .       Parent=Ppr_g1;ID=Ppr_g1;transcriptID=P
+	chr1    AUGUSTUS        start_codon     2843    2845    .       +       0       Parent=Ppr_g1;ID=Ppr_g1;transcriptID=P
+	chr1    AUGUSTUS        exon    2843    3493    .       +       .       Parent=Ppr_g1;ID=Ppr_g1;transcriptID=Ppr_g1.t1
+	chr1    AUGUSTUS        CDS     2843    3493    0.56    +       0       Parent=Ppr_g1;ID=Ppr_g1;transcriptID=Ppr_g1.t1
+	chr1    AUGUSTUS        stop_codon      3491    3493    .       +       0       Parent=Ppr_g1;ID=Ppr_g1;transcriptID=P
+	chr1    AUGUSTUS        gene    3581    4192    .       +       .       ID=Ppr_g2
+
+	/home/shangao/script/hgt/get_location_of_HGT_candidates.pl -i diamond_results.daa.taxid.gz.HGT_results.Metazoa.txt -g  /home/shangao/Scratch/breaker/01braker/Ppr/Ppr_instagrall/test6_TSEBRA/TSEBRA/braker1+2_combined_rmHiC_scaffold_10_changeHiC_scaffold_11.sort.rename.gff -f Ppr.pep
+
 	Rscript /home/shangao/script/hgt/analyse_trees.R -q anno -p ~/Scratch/breaker/04hgt/Ppr/instagraal/TSEBRA/mafft_alns/treefiles
 
 	/home/bonkis/anaconda2/pkgs/python-2.7.16-h9bab390_7/bin/python /home/shangao/software/gff3sort/Gtf2GFF.py braker1+2_combined_rmHiC_scaffold_10_changeHiC_scaffold_11.sort.rename.gtf
