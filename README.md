@@ -279,7 +279,10 @@ The program outputs 3 files, suffixed with the tags:
 	mv *treefile treefiles/
 	mv *bionj *gz *contree *iqtree *log *mldist *model *nex iqtree/
 	
+	/home/shangao/script/hgt/get_location_of_HGT_candidates.pl -i diamond_results.daa.taxid.gz.HGT_results.Metazoa.txt -g  /RAID/Data/mites/genomes/Ppr/version03/Ppr.gtf -f Ppr.pep
+	
 	Rscript /home/shangao/script/hgt/analyse_trees.R -q anno -p ~/Scratch/breaker/04hgt/Ppr/instagraal/TSEBRA/mafft_alns/treefiles
+
 
 	
 ## 10. JCVI_Synteny
