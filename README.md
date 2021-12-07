@@ -301,6 +301,44 @@ The program outputs 3 files, suffixed with the tags:
 	/home/shangao/lastz-distrib/bin/lastz ../test.p_ctg.fa[multiple] ../test.asm.a_ctg.fa --gfextend --chain --gapped --format=blastn > lastzfomat6.out.1
 	
 ## 11. circos 
+### 1.prepare assembly
+	seqkit sort -lr output_scaffolds100.fasta> output_scaffolds100.sort.fasta
+	seqkit fx2tab output_scaffolds100.sort.fasta -l -g -n -i -H
+
+	cat change.sh 
+	for i in $(cat order.list)
+	do
+	echo "sed -i 's/$i//g' output_scaffolds100.sort.fasta" >> changeOrder2.sh
+	done
+	
+	#change name to the order beginning with the biggest one
+	
+	minimap2 -t 40 -x asm5 /RAID/Data/mites/genomes/Ppr/version03/Ppr_instagrall.polished.FINAL.fa output_scaffolds100.sort.fasta >minimap_hap1_haploid0_scaffolds100.paf
+	
+	minimap2 -t 40 -x asm5 ~/Data/hifiasm_tell-seq/Ppr/hap1/test1/output_scaffolds100.sort.fasta output_scaffolds.sort.fasta > hap2_v_hap1.paf
+
+	awk -v OFS='\t' '{print $1,"1",$2,"969696","hap2","12","252525"}' hap2_v_hap1.paf |sort|uniq >/home/shangao/Scratch/breaker/05RIdeogram_plot/synteny/hap1tohap2/hap2.karyotype
+
+	awk -v OFS='\t' '{print $6,"1",$7,"969696","hap1","12","252525"}' hap2_v_hap1.paf |sort|uniq > /home/shangao/Scratch/breaker/05RIdeogram_plot/synteny/hap1tohap2/hap1.karyotype
+
+	awk -v OFS='\t' '{print $1,$3,$4,$6,$8,$9,"cccccc"}' hap2_v_hap1.paf > /home/shangao/Scratch/breaker/05RIdeogram_plot/synteny/hap1tohap2/synteny
+	awk '$3-$2>=100000 {print$0}' synteny > synteny.f
+
+
+
+	cat karyotype1 ../hap1/hap1.karyotype.sort  > karyotype
+	
+	awk NF ../hap2/new_syteny|awk -v OFS="\t" '{print$0,"1"}' > 1
+	
+	awk -v OFS="\t" '{print$4,$5,$6,$1,$2,$3,$7,"2"}' ../hap1/synteny_h1_h0.color >2
+	
+	awk -v OFS="\t" '{print$0,"3"}' ../hap1tohap2/synteny.f.color > 3
+
+	cat 1 2 3 > 4
+
+
+
+
 
 ![image](https://user-images.githubusercontent.com/34407101/144664967-9b099105-f9b1-47cb-94c8-2d6dfd39dd85.png)
 > require(RIdeogram)
