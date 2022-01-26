@@ -294,6 +294,8 @@ The program outputs 3 files, suffixed with the tags:
 
 	/home/bonkis/anaconda2/pkgs/python-2.7.16-h9bab390_7/bin/python /home/shangao/software/gff3sort/Gtf2GFF.py braker1+2_combined_rmHiC_scaffold_10_changeHiC_scaffold_11.sort.rename.gtf
 	
+	/NVME/Software/TSEBRA/bin/rename_gtf.py --gtf braker1+2_combined.gtf --prefix hap1 --out hap1.gtf
+	
 ## 10. JCVI_Synteny
 		https://github.com/tanghaibao/jcvi/wiki/MCscan-(Python-version)
 		https://github.com/tanghaibao/jcvi
