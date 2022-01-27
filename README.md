@@ -1,4 +1,4 @@
-# Mites-assembly
+	# Mites-assembly
 Assembly Ppr, Nps, Hga with Pacbio HIFI, Tell-seq, Hi-c
 ## 1.hifiasm assembly the Pacbio HIFI data
 	Ppr for example
@@ -342,22 +342,22 @@ The program outputs 3 files, suffixed with the tags:
 
 
 
-![image](https://user-images.githubusercontent.com/34407101/144664967-9b099105-f9b1-47cb-94c8-2d6dfd39dd85.png)
-> require(RIdeogram)
-Loading required package: RIdeogram
-> human_karyotype <- read.table("mites_karyotype", sep = "\t", header = T, stringsAsFactors = F)
-> gene_density <- GFFex(input = "/home/shangao/Scratch/breaker/01braker/Ppr/Ppr_instagrall/test6_TSEBRA/TSEBRA/braker1+2_combined_rmHiC_scaffold_10_changeHiC_scaffold_11.sort.rename.gtf", karyotype = "mites_karyotype", feature = "gene", window = 100000)
-> gene_density <- GFFex(input = "/home/shangao/Scratch/breaker/01braker/Ppr/Ppr_instagrall/test6_TSEBRA/TSEBRA/braker1+2_combined_rmHiC_scaffold_10_changeHiC_scaffold_11.sort.rename.gtf", karyotype = "mites_karyotype", feature = "gene", window = 100000)
-> ideogram(karyotype = human_karyotype, overlaid = gene_density)
-> convertSVG("chromosome_100k.svg", device = "png")
-Error in read_data(svg) : 
-  Argument 'svg' or 'css' must be a file path, url, or raw vector.
-> ideogram(karyotype = human_karyotype, overlaid = gene_density)
-> convertSVG("chromosome_100k.svg", device = "png")
-Error in read_data(svg) : 
-  Argument 'svg' or 'css' must be a file path, url, or raw vector.
-> ideogram(karyotype = human_karyotype, overlaid = gene_density)
-> convertSVG("chromosome.svg", device = "png")
+	![image](https://user-images.githubusercontent.com/34407101/144664967-9b099105-f9b1-47cb-94c8-2d6dfd39dd85.png)
+	> require(RIdeogram)
+	Loading required package: RIdeogram
+	> human_karyotype <- read.table("mites_karyotype", sep = "\t", header = T, stringsAsFactors = F)
+	> gene_density <- GFFex(input = "/home/shangao/Scratch/breaker/01braker/Ppr/Ppr_instagrall/test6_TSEBRA/TSEBRA/braker1+2_combined_rmHiC_scaffold_10_changeHiC_scaffold_11.sort.rename.gtf", karyotype = "mites_karyotype", feature = "gene", window = 100000)
+	> gene_density <- GFFex(input = "/home/shangao/Scratch/breaker/01braker/Ppr/Ppr_instagrall/test6_TSEBRA/TSEBRA/braker1+2_combined_rmHiC_scaffold_10_changeHiC_scaffold_11.sort.rename.gtf", karyotype = "mites_karyotype", feature = "gene", window = 100000)
+	> ideogram(karyotype = human_karyotype, overlaid = gene_density)
+	> convertSVG("chromosome_100k.svg", device = "png")
+	Error in read_data(svg) : 
+	  Argument 'svg' or 'css' must be a file path, url, or raw vector.
+	> ideogram(karyotype = human_karyotype, overlaid = gene_density)
+	> convertSVG("chromosome_100k.svg", device = "png")
+	Error in read_data(svg) : 
+	  Argument 'svg' or 'css' must be a file path, url, or raw vector.
+	> ideogram(karyotype = human_karyotype, overlaid = gene_density)
+	> convertSVG("chromosome.svg", device = "png")
 
 
 ## 12. SV
