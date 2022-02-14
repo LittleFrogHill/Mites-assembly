@@ -186,8 +186,9 @@ Assembly Ppr, Nps, Hga with Pacbio HIFI, Tell-seq, Hi-c
 
 ### 8.2 BRAKER
 
-	conda activate BRAKER	
+	conda activate BRAKER
 	
+#### using hardmasking assembly
 	braker1:
 	braker.pl --cores 40 --species=Ppr --genome=/home/shangao/Data/EDTA/Ppr/Ppr_instagrall/Ppr_instagrall.polished.fa.mod.MAKER.masked \
 	 --softmasking --bam=/home/shangao/Scratch/breaker/000rna-seq/Ppr/Ppr_instagrall/PprAligned.sortedByCoord.out.bam \
@@ -229,7 +230,37 @@ Assembly Ppr, Nps, Hga with Pacbio HIFI, Tell-seq, Hi-c
 		# Values have to be >0
 		e_3 25
 		e_4 10
-	
+#### using softmasking assembly
+	cat braker.sh 
+mkdir braker1_out
+braker.pl --cores 40 --species=Ppr --genome=/RAID/Data/mites/genomes/Ppr/version03/Ppr_instagrall.polished.FINAL.softmask.fa \
+	 --softmasking --bam=/home/shangao/Scratch/breaker/000rna-seq/Ppr/Ppr_instagrall/changed_chr/PprAligned.sortedByCoord.out.bam \
+	 --gff3 --useexisting --GENEMARK_PATH=/home/shangao/Software/BrAKER/gmes_linux_64/ --workingdir=braker1_out
+
+mkdir braker2_out
+
+	braker.pl --cores 40 --species=Ppr_gene --genome=/RAID/Data/mites/genomes/Ppr/version03/Ppr_instagrall.polished.FINAL.softmask.fa \
+	 --softmasking \
+	 --gff3 --GENEMARK_PATH=/home/shangao/Software/BrAKER/gmes_linux_64/ \
+	 --prot_seq /RAID/Data/databases/braker_db/proteins.fasta --epmode --workingdir=braker2_out --PROTHINT_PATH=/home/shangao/software/ProtHint-2.6.0/bin/
+
+/home/shangao/Software/TSEBRA/bin/fix_gtf_ids.py --gtf braker1_out/braker.gtf --out braker1.fix.gtf
+
+/home/shangao/Software/TSEBRA/bin/fix_gtf_ids.py --gtf braker2_out/braker.gtf --out braker2.fix.gtf
+
+/home/shangao/Software/TSEBRA/bin/tsebra.py -g braker1.fix.gtf,braker2.fix.gtf \
+	-c /home/shangao/Software/TSEBRA/config/default.cfg \
+	-e braker1_out/hintsfile.gff,braker2_out/hintsfile.gff \
+        -o braker1+2_combined.gtf
+
+#### change prefix
+/NVME/Software/TSEBRA/bin/rename_gtf.py --gtf braker1+2_combined.gtf --prefix hap1 --out hap1.gtf
+
+#### gtf2gff
+/home/bonkis/anaconda2/pkgs/python-2.7.16-h9bab390_7/bin/python /home/shangao/software/gff3sort/Gtf2GFF.py braker1+2_combined_rmHiC_scaffold_10_changeHiC_scaffold_11.sort.rename.gtf
+
+
+
 #### 9.HGT  https://github.com/reubwn/hgt
 	
 	conda activate BRAKER
@@ -296,13 +327,7 @@ The program outputs 3 files, suffixed with the tags:
 	
 	/NVME/Software/TSEBRA/bin/rename_gtf.py --gtf braker1+2_combined.gtf --prefix hap1 --out hap1.gtf
 	
-## 10. JCVI_Synteny
-		https://github.com/tanghaibao/jcvi/wiki/MCscan-(Python-version)
-		https://github.com/tanghaibao/jcvi
-
-	/home/shangao/lastz-distrib/bin/lastz ../test.p_ctg.fa[multiple] ../test.asm.a_ctg.fa --gfextend --chain --gapped --format=blastn > lastzfomat6.out.1
-	
-## 11. circos 
+## 10. RIdeogram syteny
 ### 1.prepare assembly
 	seqkit sort -lr output_scaffolds100.fasta> output_scaffolds100.sort.fasta
 	seqkit fx2tab output_scaffolds100.sort.fasta -l -g -n -i -H
@@ -338,10 +363,6 @@ The program outputs 3 files, suffixed with the tags:
 
 	cat 1 2 3 > 4
 
-
-
-
-
 	![image](https://user-images.githubusercontent.com/34407101/144664967-9b099105-f9b1-47cb-94c8-2d6dfd39dd85.png)
 	> require(RIdeogram)
 	Loading required package: RIdeogram
@@ -359,5 +380,36 @@ The program outputs 3 files, suffixed with the tags:
 	> ideogram(karyotype = human_karyotype, overlaid = gene_density)
 	> convertSVG("chromosome.svg", device = "png")
 
+## 11. circos mcscanx
+	gffread /home/shangao/Scratch/breaker/01braker/Ppr/Ppr_hap1/braker1+2_combined.gtf -g /RAID/Data/mites/genomes/Ppr/version03/hap1/hap1.fa -y Ppr_hap1.pep
+
+#gffread /RAID/Data/mites/genomes/Ppr/version03/Ppr.gtf -g /RAID/Data/mites/genomes/Ppr/version03/Ppr_instagrall.polished.FINAL.fa -y Ppr.pep
+
+awk -v OFS='\t' '$3=="gene"{print$1,$9,$4,$5}' /RAID/Data/mites/genomes/Ppr/version03/Ppr.gtf > Ppr_hap0.gff
+
+diamond makedb --in Ppr.pep -d Ppr.pep.aa
+
+diamond blastp -e 1e-5 -p 8 -q Ppr_hap1.pep -d Ppr.pep -a Ppr_hap1tohap0.blastp
+
+diamond view -a Ppr_hap1tohap0.blastp -o Xyz_hapi1.blast
+
+/home/jbast/anaconda3/envs/BRAKER/bin/getAnnoFasta.pl --seqfile=/RAID/Data/mites/genomes/Ppr/version03/Ppr_instagrall.polished.FINAL.fa /RAID/Data/mites/genomes/Ppr/version03/Ppr.gtf
+
+perl -lane 'print join("\t",$F[0],$F[8],$F[3],$F[4]) if ($F[2]eq"transcript")' ~/Scratch/breaker/04hgt/Ppr/instagraal/TSEBRA/Ppr.gff3 > Xyz.gff
+### get simple gff and blast results then use mcscanx get results
+https://genomevis.usask.ca/
+/home/shangao/Scratch/breaker/02hap2assembly
 
 ## 12. SV
+	conda activate leviathan
+	
+	cat Data/gaoshan/hifiasm_tell-seq/tell_sort/leviathan/test.sh
+for i in Ppr_T501 \
+Ppr_T502 \
+Ppr_T505 \
+Ppr_T506 
+do
+LRez index bam -p -b ../tell_sort_out/$i/${i}_temp/$i.sorted.bam -o ../tell_sort_out/$i/${i}_temp/$i.barcodeIndex.bci
+LEVIATHAN -b ../tell_sort_out/$i/${i}_temp/$i.sorted.bam -i ../tell_sort_out/$i/${i}_temp/$i.barcodeIndex.bci -g /RAID/Data/mites/genomes/Ppr/version03/Ppr_instagrall.polished.FINAL.fa -o $i.SV.vcf
+done
+
