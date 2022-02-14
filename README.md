@@ -254,10 +254,10 @@ mkdir braker2_out
         -o braker1+2_combined.gtf
 
 #### change prefix
-/NVME/Software/TSEBRA/bin/rename_gtf.py --gtf braker1+2_combined.gtf --prefix hap1 --out hap1.gtf
+	/NVME/Software/TSEBRA/bin/rename_gtf.py --gtf braker1+2_combined.gtf --prefix hap1 --out hap1.gtf
 
 #### gtf2gff
-/home/bonkis/anaconda2/pkgs/python-2.7.16-h9bab390_7/bin/python /home/shangao/software/gff3sort/Gtf2GFF.py braker1+2_combined_rmHiC_scaffold_10_changeHiC_scaffold_11.sort.rename.gtf
+	/home/bonkis/anaconda2/pkgs/python-2.7.16-h9bab390_7/bin/python /home/shangao/software/gff3sort/Gtf2GFF.py braker1+2_combined_rmHiC_scaffold_10_changeHiC_scaffold_11.sort.rename.gtf
 
 
 
@@ -383,33 +383,33 @@ The program outputs 3 files, suffixed with the tags:
 ## 11. circos mcscanx
 	gffread /home/shangao/Scratch/breaker/01braker/Ppr/Ppr_hap1/braker1+2_combined.gtf -g /RAID/Data/mites/genomes/Ppr/version03/hap1/hap1.fa -y Ppr_hap1.pep
 
-#gffread /RAID/Data/mites/genomes/Ppr/version03/Ppr.gtf -g /RAID/Data/mites/genomes/Ppr/version03/Ppr_instagrall.polished.FINAL.fa -y Ppr.pep
-
-awk -v OFS='\t' '$3=="gene"{print$1,$9,$4,$5}' /RAID/Data/mites/genomes/Ppr/version03/Ppr.gtf > Ppr_hap0.gff
-
-diamond makedb --in Ppr.pep -d Ppr.pep.aa
-
-diamond blastp -e 1e-5 -p 8 -q Ppr_hap1.pep -d Ppr.pep -a Ppr_hap1tohap0.blastp
-
-diamond view -a Ppr_hap1tohap0.blastp -o Xyz_hapi1.blast
-
-/home/jbast/anaconda3/envs/BRAKER/bin/getAnnoFasta.pl --seqfile=/RAID/Data/mites/genomes/Ppr/version03/Ppr_instagrall.polished.FINAL.fa /RAID/Data/mites/genomes/Ppr/version03/Ppr.gtf
-
-perl -lane 'print join("\t",$F[0],$F[8],$F[3],$F[4]) if ($F[2]eq"transcript")' ~/Scratch/breaker/04hgt/Ppr/instagraal/TSEBRA/Ppr.gff3 > Xyz.gff
-### get simple gff and blast results then use mcscanx get results
-https://genomevis.usask.ca/
-/home/shangao/Scratch/breaker/02hap2assembly
-
+	#gffread /RAID/Data/mites/genomes/Ppr/version03/Ppr.gtf -g /RAID/Data/mites/genomes/Ppr/version03/Ppr_instagrall.polished.FINAL.fa -y Ppr.pep
+	
+	awk -v OFS='\t' '$3=="gene"{print$1,$9,$4,$5}' /RAID/Data/mites/genomes/Ppr/version03/Ppr.gtf > Ppr_hap0.gff
+	
+	diamond makedb --in Ppr.pep -d Ppr.pep.aa
+	
+	diamond blastp -e 1e-5 -p 8 -q Ppr_hap1.pep -d Ppr.pep -a Ppr_hap1tohap0.blastp
+	
+	diamond view -a Ppr_hap1tohap0.blastp -o Xyz_hapi1.blast
+	
+	/home/jbast/anaconda3/envs/BRAKER/bin/getAnnoFasta.pl --seqfile=/RAID/Data/mites/genomes/Ppr/version03/Ppr_instagrall.polished.FINAL.fa /RAID/Data/mites/genomes/Ppr/version03/Ppr.gtf
+	
+	perl -lane 'print join("\t",$F[0],$F[8],$F[3],$F[4]) if ($F[2]eq"transcript")' ~/Scratch/breaker/04hgt/Ppr/instagraal/TSEBRA/Ppr.gff3 > Xyz.gff
+	### get simple gff and blast results then use mcscanx get results
+	https://genomevis.usask.ca/
+	/home/shangao/Scratch/breaker/02hap2assembly
+	
 ## 12. SV
 	conda activate leviathan
 	
 	cat Data/gaoshan/hifiasm_tell-seq/tell_sort/leviathan/test.sh
-for i in Ppr_T501 \
-Ppr_T502 \
-Ppr_T505 \
-Ppr_T506 
-do
-LRez index bam -p -b ../tell_sort_out/$i/${i}_temp/$i.sorted.bam -o ../tell_sort_out/$i/${i}_temp/$i.barcodeIndex.bci
-LEVIATHAN -b ../tell_sort_out/$i/${i}_temp/$i.sorted.bam -i ../tell_sort_out/$i/${i}_temp/$i.barcodeIndex.bci -g /RAID/Data/mites/genomes/Ppr/version03/Ppr_instagrall.polished.FINAL.fa -o $i.SV.vcf
-done
+	for i in Ppr_T501 \
+	Ppr_T502 \
+	Ppr_T505 \
+	Ppr_T506 
+	do
+	LRez index bam -p -b ../tell_sort_out/$i/${i}_temp/$i.sorted.bam -o ../tell_sort_out/$i/${i}_temp/$i.barcodeIndex.bci
+	LEVIATHAN -b ../tell_sort_out/$i/${i}_temp/$i.sorted.bam -i ../tell_sort_out/$i/${i}_temp/$i.barcodeIndex.bci -g /RAID/Data/mites/genomes/Ppr/version03/Ppr_instagrall.polished.FINAL.fa -o $i.SV.vcf
+	done
 
