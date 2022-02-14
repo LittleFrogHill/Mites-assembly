@@ -1,4 +1,4 @@
-	# Mites-assembly
+		# Mites-assembly
 Assembly Ppr, Nps, Hga with Pacbio HIFI, Tell-seq, Hi-c
 ## 1.hifiasm assembly the Pacbio HIFI data
 	Ppr for example
@@ -232,26 +232,26 @@ Assembly Ppr, Nps, Hga with Pacbio HIFI, Tell-seq, Hi-c
 		e_4 10
 #### using softmasking assembly
 	cat braker.sh 
-mkdir braker1_out
-braker.pl --cores 40 --species=Ppr --genome=/RAID/Data/mites/genomes/Ppr/version03/Ppr_instagrall.polished.FINAL.softmask.fa \
-	 --softmasking --bam=/home/shangao/Scratch/breaker/000rna-seq/Ppr/Ppr_instagrall/changed_chr/PprAligned.sortedByCoord.out.bam \
-	 --gff3 --useexisting --GENEMARK_PATH=/home/shangao/Software/BrAKER/gmes_linux_64/ --workingdir=braker1_out
-
-mkdir braker2_out
-
-	braker.pl --cores 40 --species=Ppr_gene --genome=/RAID/Data/mites/genomes/Ppr/version03/Ppr_instagrall.polished.FINAL.softmask.fa \
-	 --softmasking \
-	 --gff3 --GENEMARK_PATH=/home/shangao/Software/BrAKER/gmes_linux_64/ \
-	 --prot_seq /RAID/Data/databases/braker_db/proteins.fasta --epmode --workingdir=braker2_out --PROTHINT_PATH=/home/shangao/software/ProtHint-2.6.0/bin/
-
-/home/shangao/Software/TSEBRA/bin/fix_gtf_ids.py --gtf braker1_out/braker.gtf --out braker1.fix.gtf
-
-/home/shangao/Software/TSEBRA/bin/fix_gtf_ids.py --gtf braker2_out/braker.gtf --out braker2.fix.gtf
-
-/home/shangao/Software/TSEBRA/bin/tsebra.py -g braker1.fix.gtf,braker2.fix.gtf \
-	-c /home/shangao/Software/TSEBRA/config/default.cfg \
-	-e braker1_out/hintsfile.gff,braker2_out/hintsfile.gff \
-        -o braker1+2_combined.gtf
+	mkdir braker1_out
+	braker.pl --cores 40 --species=Ppr --genome=/RAID/Data/mites/genomes/Ppr/version03/Ppr_instagrall.polished.FINAL.softmask.fa \
+		 --softmasking --bam=/home/shangao/Scratch/breaker/000rna-seq/Ppr/Ppr_instagrall/changed_chr/PprAligned.sortedByCoord.out.bam \
+		 --gff3 --useexisting --GENEMARK_PATH=/home/shangao/Software/BrAKER/gmes_linux_64/ --workingdir=braker1_out
+	
+	mkdir braker2_out
+	
+		braker.pl --cores 40 --species=Ppr_gene --genome=/RAID/Data/mites/genomes/Ppr/version03/Ppr_instagrall.polished.FINAL.softmask.fa \
+		 --softmasking \
+		 --gff3 --GENEMARK_PATH=/home/shangao/Software/BrAKER/gmes_linux_64/ \
+		 --prot_seq /RAID/Data/databases/braker_db/proteins.fasta --epmode --workingdir=braker2_out --PROTHINT_PATH=/home/shangao/software/ProtHint-2.6.0/bin/
+	
+	/home/shangao/Software/TSEBRA/bin/fix_gtf_ids.py --gtf braker1_out/braker.gtf --out braker1.fix.gtf
+	
+	/home/shangao/Software/TSEBRA/bin/fix_gtf_ids.py --gtf braker2_out/braker.gtf --out braker2.fix.gtf
+	
+	/home/shangao/Software/TSEBRA/bin/tsebra.py -g braker1.fix.gtf,braker2.fix.gtf \
+		-c /home/shangao/Software/TSEBRA/config/default.cfg \
+		-e braker1_out/hintsfile.gff,braker2_out/hintsfile.gff \
+	        -o braker1+2_combined.gtf
 
 #### change prefix
 	/NVME/Software/TSEBRA/bin/rename_gtf.py --gtf braker1+2_combined.gtf --prefix hap1 --out hap1.gtf
