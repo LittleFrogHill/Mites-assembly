@@ -259,24 +259,30 @@ Assembly Ppr, Nps, Hga with Pacbio HIFI, Tell-seq, Hi-c
 #### gtf2gff
 	/home/bonkis/anaconda2/pkgs/python-2.7.16-h9bab390_7/bin/python /home/shangao/software/gff3sort/Gtf2GFF.py braker1+2_combined_rmHiC_scaffold_10_changeHiC_scaffold_11.sort.rename.gtf
 
-
-
-#### 9.HGT  https://github.com/reubwn/hgt
+#### eggmaper
+	cat eggmaper.sh 
+	export EGGNOG_DATA_DIR=/RAID/Data/databases/eggnog-mapper-data
+	#emapper.py -i Ppr.pep -o test
+	#emapper.py -m mmseqs --itype CDS --translate -i Ppr.cds -o test --decorate_gff Ppr.gff --decorate_gff_ID_field ID --resume
+	emapper.py -m mmseqs --itype CDS --translate -i Ppr.cds -o cds --decorate_gff Ppr.gff --decorate_gff_ID_field ID
+	emapper.py -i Ppr.pep --itype proteins -o pro --decorate_gff Ppr.gff --decorate_gff_ID_field ID > emapper.pro.log
+	
+### 9.HGT  https://github.com/reubwn/hgt
 	
 	conda activate BRAKER
 	
-### 9.1 get pro.seq from genome by gff
+#### 9.1 get pro.seq from genome by gff
 
 	gffread ../01braker/braker/braker.gtf -g /home/shangao/Scratch/hi-c/sala2/Ppr2/scaffolds/scaffolds_FINAL.fasta -y Ppr.pep
 
-### 9.2 prepare the db and tax files
+#### 9.2 prepare the db and tax files
 
 	bd: /home/shangao/Data/HGT_db/
 	perl -lane 'if(/^>(\w+)\s.+TaxID\=(\d+)/){print "$1 $2"}' <(zcat uniref90.fasta.gz) | gzip > uniref90.fasta.taxlist.gz
 	diamond blastp --sensitive --index-chunks 1 -k 500 -e 1e-5 -p 32 -q Ppr.pep -d /home/shangao/Data/HGT_db/uniref90.dmnd -a Ppr_diamond_results
 	cat <(zcat /home/shangao/Data/HGT_db/uniref90.fasta.taxlist.gz) <(diamond view -a Ppr_diamond_results.daa)|perl -lane 'if(@F==2){$tax{$F[0]}=$F[1];}else{if(exists($tax{$F[1]})){print join("\t",@F,$tax{$F[1]});} else {print join("\t",@F,"NA");}}'| gzip > diamond_results.daa.taxid.gz
 	
-### 9.3 get results
+#### 9.3 get results
 
 	/home/shangao/script/hgt/diamond_to_HGT_candidates.pl -i diamond_results.daa.taxid.gz -f Ppr.pep -p /home/shangao/Data/HGT_db/taxdump
 	
@@ -288,7 +294,7 @@ The program outputs 3 files, suffixed with the tags:
   
  when you meet some perl lib problem get out of conda
  
- ### 9.4 HGT_candidates_to_fasta
+ #### 9.4 HGT_candidates_to_fasta
  
  	/home/shangao/script/hgt/HGT_candidates_to_fasta.pl -i diamond_results.daa.taxid.gz -c diamond_results.daa.taxid.gz.HGT_candidates.Metazoa.hU30.CHS90.txt -u /home/shangao/Data/HGT_db/uniref90.fasta -f Ppr.pep -p /home/shangao/Data/HGT_db/taxdump
 	
