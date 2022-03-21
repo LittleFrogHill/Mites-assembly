@@ -267,6 +267,10 @@ Assembly Ppr, Nps, Hga with Pacbio HIFI, Tell-seq, Hi-c
 	emapper.py -m mmseqs --itype CDS --translate -i Ppr.cds -o cds --decorate_gff Ppr.gff --decorate_gff_ID_field ID
 	emapper.py -i Ppr.pep --itype proteins -o pro --decorate_gff Ppr.gff --decorate_gff_ID_field ID > emapper.pro.log
 	
+#### clusterprofilter
+	https://www.disgenet.org/static/disgenet_ap1/files/downloads/all_gene_disease_associations.tsv.gz
+	http://guangchuangyu.github.io/2015/05/use-clusterprofiler-as-an-universal-enrichment-analysis-tool/
+	
 ### 9.HGT  https://github.com/reubwn/hgt
 	
 	conda activate BRAKER
