@@ -279,6 +279,7 @@ Assembly Ppr, Nps, Hga with Pacbio HIFI, Tell-seq, Hi-c
 
 	bd: /home/shangao/Data/HGT_db/
 	perl -lane 'if(/^>(\w+)\s.+TaxID\=(\d+)/){print "$1 $2"}' <(zcat uniref90.fasta.gz) | gzip > uniref90.fasta.taxlist.gz
+	#注意版本，要用旧版
 	diamond blastp --sensitive --index-chunks 1 -k 500 -e 1e-5 -p 32 -q Ppr.pep -d /home/shangao/Data/HGT_db/uniref90.dmnd -a Ppr_diamond_results
 	cat <(zcat /home/shangao/Data/HGT_db/uniref90.fasta.taxlist.gz) <(diamond view -a Ppr_diamond_results.daa)|perl -lane 'if(@F==2){$tax{$F[0]}=$F[1];}else{if(exists($tax{$F[1]})){print join("\t",@F,$tax{$F[1]});} else {print join("\t",@F,"NA");}}'| gzip > diamond_results.daa.taxid.gz
 	
