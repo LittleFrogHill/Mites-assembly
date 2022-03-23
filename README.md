@@ -270,6 +270,8 @@ Assembly Ppr, Nps, Hga with Pacbio HIFI, Tell-seq, Hi-c
 #### clusterprofilter
 	https://www.disgenet.org/static/disgenet_ap1/files/downloads/all_gene_disease_associations.tsv.gz
 	http://guangchuangyu.github.io/2015/05/use-clusterprofiler-as-an-universal-enrichment-analysis-tool/
+	https://guangchuangyu.github.io/cn/2017/09/ko-id-conversion/
+	#利用注释信息构建数据库进行富集分析
 	
 ### 9.HGT  https://github.com/reubwn/hgt
 	
