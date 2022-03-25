@@ -273,6 +273,17 @@ Assembly Ppr, Nps, Hga with Pacbio HIFI, Tell-seq, Hi-c
 	https://guangchuangyu.github.io/cn/2017/09/ko-id-conversion/
 	#利用注释信息构建数据库进行富集分析
 	
+	require(DOSE)
+	require(clusterProfiler)
+	kegg <- read.delim("cds.emapper.annotations_Ko.term")
+	ko2name(kegg$keggId) -> y
+	hgt<-read.delim("/home/shangao/Scratch/breaker/04hgt/Ppr/softmask/diamond_results.daa.taxid.gz.HGT_candidates.Metazoa.hU30.CHS90.txt.genelist")
+	hgt<-as.matrix(hgt)
+	x = enricher(hgt, TERM2GENE=kegg, TERM2NAME=y)
+	
+	
+	
+	
 ### 9.HGT  https://github.com/reubwn/hgt
 	
 	conda activate BRAKER
