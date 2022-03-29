@@ -279,7 +279,7 @@ Assembly Ppr, Nps, Hga with Pacbio HIFI, Tell-seq, Hi-c
 	library(ggplot2)
 	library(stringr)
 	
-##### Go database build
+##### Go database build https://blog.csdn.net/liuninghua521/article/details/111030304
 
 	egg<-read.delim("pro.emapper.annotations.test")
 	gene_ids <- egg$query
@@ -292,19 +292,65 @@ Assembly Ppr, Nps, Hga with Pacbio HIFI, Tell-seq, Hi-c
 	go2term <- go2term(term2gene$GO)
 	
 #### kegg database build
+	gene2ko <- egg %>%
+			dplyr::select(GID = query, KO = KEGG_ko) %>%
+			na.omit()
+	if(!file.exists('kegg_info.RData')){
+	   library(jsonlite)
+	   library(purrr)
+	   library(RCurl)
+	   
+	   update_kegg <- function(json = "ko00001.json",file=NULL) {
+	     pathway2name <- tibble(Pathway = character(), Name = character())
+	     ko2pathway <- tibble(Ko = character(), Pathway = character())
+	     
+	     kegg <- fromJSON(json)
+	     
+	     for (a in seq_along(kegg[["children"]][["children"]])) {
+	 	      A <- kegg[["children"]][["name"]][[a]]
+	       
+	       for (b in seq_along(kegg[["children"]][["children"]][[a]][["children"]])) {
+	         B <- kegg[["children"]][["children"]][[a]][["name"]][[b]] 
+	         
+	         for (c in seq_along(kegg[["children"]][["children"]][[a]][["children"]][[b]][["children"]])) {
+	           pathway_info <- kegg[["children"]][["children"]][[a]][["children"]][[b]][["name"]][[c]]
+	           
+	           pathway_id <- str_match(pathway_info, "ko[0-9]{5}")[1]
+	           pathway_name <- str_replace(pathway_info, " \\[PATH:ko[0-9]{5}\\]", "") %>% str_replace("[0-9]{5} ", "")
+	           pathway2name <- rbind(pathway2name, tibble(Pathway = pathway_id, Name = pathway_name))
+	           
+	           kos_info <- kegg[["children"]][["children"]][[a]][["children"]][[b]][["children"]][[c]][["name"]]
+	           
+	           kos <- str_match(kos_info, "K[0-9]*")[,1]
+	           
+	           ko2pathway <- rbind(ko2pathway, tibble(Ko = kos, Pathway = rep(pathway_id, length(kos))))
+	         }
+	       }
+	     }
+	     
+	     save(pathway2name, ko2pathway, file = file)
+	   }
+	   
+	   update_kegg(json = "ko00001.json",file="kegg_info.RData")
+	   
+	+ }
 	
+	load('./kegg_info.RData')
 	
+	colnames(ko2pathway)=c("KO",'Pathway')
+	library(stringr)
+	gene2ko$KO=str_replace(gene2ko$KO,"ko:","")
+	gene2pathway <- gene2ko %>% left_join(ko2pathway, by = "KO") %>% 
+	   dplyr::select(GID, Pathway) %>%
+	   na.omit()
+	 head(gene2pathway)
 	
-	
-	
+#### kegg database with python script /home/shangao/script/python/divide_eggnoger_results2clusterprofliter.py
 	kegg <- read.delim("cds.emapper.annotations_Ko.term")
 	ko2name(kegg$keggId) -> y
 	hgt<-read.delim("/home/shangao/Scratch/breaker/04hgt/Ppr/softmask/diamond_results.daa.taxid.gz.HGT_candidates.Metazoa.hU30.CHS90.txt.genelist")
 	hgt<-as.matrix(hgt)
 	x = enricher(hgt, TERM2GENE=kegg, TERM2NAME=y)
-	
-	
-	
 	
 ### 9.HGT  https://github.com/reubwn/hgt
 	
