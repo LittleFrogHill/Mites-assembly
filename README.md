@@ -291,10 +291,12 @@ Assembly Ppr, Nps, Hga with Pacbio HIFI, Tell-seq, Hi-c
 	go2ont <- go2ont(term2gene$GO)
 	go2term <- go2term(term2gene$GO)
 	
-#### kegg database build
+##### kegg database build https://www.jieandze1314.com/post/cnposts/208/
 	gene2ko <- egg %>%
 			dplyr::select(GID = query, KO = KEGG_ko) %>%
 			na.omit()
+	download 'ko00001.json' and creat 'kegg_info.RData' , https://www.genome.jp/kegg-bin/get_htext?ko00001
+	
 	if(!file.exists('kegg_info.RData')){
 	   library(jsonlite)
 	   library(purrr)
@@ -334,7 +336,7 @@ Assembly Ppr, Nps, Hga with Pacbio HIFI, Tell-seq, Hi-c
 	   update_kegg(json = "ko00001.json",file="kegg_info.RData")
 	   
 	+ }
-	
+	#要load一遍，数据存在当前目录
 	load('./kegg_info.RData')
 	
 	colnames(ko2pathway)=c("KO",'Pathway')
@@ -346,11 +348,21 @@ Assembly Ppr, Nps, Hga with Pacbio HIFI, Tell-seq, Hi-c
 	 head(gene2pathway)
 	
 #### kegg database with python script /home/shangao/script/python/divide_eggnoger_results2clusterprofliter.py
-	kegg <- read.delim("cds.emapper.annotations_Ko.term")
+	kegg <- read.delim("pro.emapper.annotations_Ko.term")
 	ko2name(kegg$keggId) -> y
+	
+#### enrich
 	hgt<-read.delim("/home/shangao/Scratch/breaker/04hgt/Ppr/softmask/diamond_results.daa.taxid.gz.HGT_candidates.Metazoa.hU30.CHS90.txt.genelist")
 	hgt<-as.matrix(hgt)
 	x = enricher(hgt, TERM2GENE=kegg, TERM2NAME=y)
+	
+	#R直出结果
+	go_enrich<-enricher(hgt, TERM2GENE = term2gene, TERM2NAME = go2term, pvalueCutoff = 1, qvalueCutoff = 1)
+	
+	new_cols<-c("Pathway","GID")
+	gene2pathway<- gene2pathway[,new_cols]
+	kegg_enrich<-enricher(hgt, TERM2GENE = gene2pathway, TERM2NAME = pathway2name, pvalueCutoff = 1, qvalueCutoff = 1)
+	
 	
 ### 9.HGT  https://github.com/reubwn/hgt
 	
