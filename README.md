@@ -275,6 +275,28 @@ Assembly Ppr, Nps, Hga with Pacbio HIFI, Tell-seq, Hi-c
 	
 	require(DOSE)
 	require(clusterProfiler)
+	library(enrichplot)
+	library(ggplot2)
+	library(stringr)
+	
+##### Go database build
+
+	egg<-read.delim("pro.emapper.annotations.test")
+	gene_ids <- egg$query
+	eggnog_lines_with_go <- egg$GOs!='-'
+	eggnog_annoations_go <- str_split(egg[eggnog_lines_with_go,]$GOs, ",")
+	gene_to_go <- data.frame(gene = rep(gene_ids[eggnog_lines_with_go], times = sapply(eggnog_annoations_go, length)), term = unlist(eggnog_annoations_go))
+	term2gene1 <- gene_to_go[, c(2, 1)]
+	term2gene <- buildGOmap(term2gene1)
+	go2ont <- go2ont(term2gene$GO)
+	go2term <- go2term(term2gene$GO)
+	
+#### kegg database build
+	
+	
+	
+	
+	
 	kegg <- read.delim("cds.emapper.annotations_Ko.term")
 	ko2name(kegg$keggId) -> y
 	hgt<-read.delim("/home/shangao/Scratch/breaker/04hgt/Ppr/softmask/diamond_results.daa.taxid.gz.HGT_candidates.Metazoa.hU30.CHS90.txt.genelist")
