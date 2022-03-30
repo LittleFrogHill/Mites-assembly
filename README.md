@@ -367,6 +367,12 @@ Assembly Ppr, Nps, Hga with Pacbio HIFI, Tell-seq, Hi-c
 	gene2pathway<- gene2pathway[,new_cols]
 	kegg_enrich<-enricher(hgt, TERM2GENE = gene2pathway, TERM2NAME = pathway2name, pvalueCutoff = 1, qvalueCutoff = 1)
 	
+	pdf('results.pdf',pointsize=2)
+	barplot(kegg_enrich, showCategory=20)
+	barplot(go_enrich, showCategory=20)
+	dotplot(go_enrich, showCategory=30) + ggtitle("dotplot for GO")
+	dotplot(kegg_enrich, showCategory=30) + ggtitle("dotplot for KEGG")
+	dev.off()
 	
 ### 9.HGT  https://github.com/reubwn/hgt
 	
