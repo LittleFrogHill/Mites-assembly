@@ -343,6 +343,9 @@ Assembly Ppr, Nps, Hga with Pacbio HIFI, Tell-seq, Hi-c
 	colnames(ko2pathway)=c("KO",'Pathway')
 	library(stringr)
 	gene2ko$KO=str_replace(gene2ko$KO,"ko:","")
+	
+	library(dplyr)
+	
 	gene2pathway <- gene2ko %>% left_join(ko2pathway, by = "KO") %>% 
 	   dplyr::select(GID, Pathway) %>%
 	   na.omit()
