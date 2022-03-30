@@ -272,6 +272,7 @@ Assembly Ppr, Nps, Hga with Pacbio HIFI, Tell-seq, Hi-c
 	http://guangchuangyu.github.io/2015/05/use-clusterprofiler-as-an-universal-enrichment-analysis-tool/
 	https://guangchuangyu.github.io/cn/2017/09/ko-id-conversion/
 	#利用注释信息构建数据库进行富集分析
+	#motoko上R包的安装，注意是哪一个R，在conda环境外安装
 	
 	require(DOSE)
 	require(clusterProfiler)
