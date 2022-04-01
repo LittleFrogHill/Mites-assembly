@@ -372,14 +372,14 @@ Assembly Ppr, Nps, Hga with Pacbio HIFI, Tell-seq, Hi-c
 	hgt_kegg_enrich<-enricher(hgt, TERM2GENE = gene2pathway, TERM2NAME = pathway2name, pvalueCutoff = 1, qvalueCutoff = 0.05)
 	dea_kegg_enrich<-enricher(dea, TERM2GENE = gene2pathway, TERM2NAME = pathway2name, pvalueCutoff = 1, qvalueCutoff = 0.05)
 	
-	pdf('results_dea.pdf',width=10)
-	dotplot(dea_kegg_enrich, showCategory=30) + ggtitle("dotplot for KEGG")
-	dotplot(dea_go_enrich, showCategory=30) + ggtitle("dotplot for GO")
+	pdf('results_dea_protein.pdf',width=10)
+	dotplot(dea_kegg_enrich, showCategory=30) + ggtitle("Dotplot for dea KEGG in protein database")
+	dotplot(dea_go_enrich, showCategory=30) + ggtitle("dotplot for dea GO in protein database")
 	dev.off()
 	
-	pdf('results_hgt.pdf',width=10)
-        dotplot(hgt_kegg_enrich, showCategory=30) + ggtitle("dotplot for KEGG")
-        dotplot(hgt_go_enrich, showCategory=30) + ggtitle("dotplot for GO")
+	pdf('results_hgt_protein.pdf',width=10)
+        dotplot(hgt_kegg_enrich, showCategory=30) + ggtitle("Dotplot for hgt KEGG in protein database")
+        dotplot(hgt_go_enrich, showCategory=30) + ggtitle("Dotplot for hgt GO in protein database")
         dev.off()
 	
 	
