@@ -382,7 +382,15 @@ Assembly Ppr, Nps, Hga with Pacbio HIFI, Tell-seq, Hi-c
         dotplot(hgt_go_enrich, showCategory=30) + ggtitle("Dotplot for hgt GO in protein database")
         dev.off()
 	
-	
+	hgt_dea<-read.delim("/home/shangao/Scratch/breaker/06homology_gene2haps/deseq_prep/divgent_fq/stringtie/hgt2Dea/dea2hgt.list")
+	hgt_dea<-as.matrix(hgt_dea)
+	hgt_dea_go_enrich<-enricher(hgt_dea, TERM2GENE = term2gene, TERM2NAME = go2term, pvalueCutoff = 1, qvalueCutoff = 0.05)
+	hgt_dea_kegg_enrich<-enricher(hgt_dea, TERM2GENE = gene2pathway, TERM2NAME = pathway2name, pvalueCutoff = 1, qvalueCutoff = 0.05)
+	pdf('results_both_dea_hgt_protein.pdf',width=10)
+	dotplot(hgt_dea_kegg_enrich, showCategory=30) + ggtitle("Dotplot for both dea and hgt KEGG in protein database")
+	dotplot(hgt_dea_go_enrich, showCategory=30) + ggtitle("dotplot for both dea and hgt GO in protein database")
+	dev.off()
+
 ### 9.HGT  https://github.com/reubwn/hgt
 	
 	conda activate BRAKER
