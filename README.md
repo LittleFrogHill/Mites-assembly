@@ -360,19 +360,28 @@ Assembly Ppr, Nps, Hga with Pacbio HIFI, Tell-seq, Hi-c
 	hgt<-as.matrix(hgt)
 	x = enricher(hgt, TERM2GENE=kegg, TERM2NAME=y)
 	
+	dea<-read.delim("/home/shangao/Scratch/breaker/06homology_gene2haps/deseq_prep/divgent_fq/stringtie/DEseq.adj.gene.list.inhap0")
+	dea<-as.matrix(dea)
+
 	#R直出结果
-	go_enrich<-enricher(hgt, TERM2GENE = term2gene, TERM2NAME = go2term, pvalueCutoff = 1, qvalueCutoff = 1)
+	hgt_go_enrich<-enricher(hgt, TERM2GENE = term2gene, TERM2NAME = go2term, pvalueCutoff = 1, qvalueCutoff = 0.05)
+	dea_go_enrich<-enricher(dea, TERM2GENE = term2gene, TERM2NAME = go2term, pvalueCutoff = 1, qvalueCutoff = 0.05)
 	
 	new_cols<-c("Pathway","GID")
 	gene2pathway<- gene2pathway[,new_cols]
-	kegg_enrich<-enricher(hgt, TERM2GENE = gene2pathway, TERM2NAME = pathway2name, pvalueCutoff = 1, qvalueCutoff = 1)
+	hgt_kegg_enrich<-enricher(hgt, TERM2GENE = gene2pathway, TERM2NAME = pathway2name, pvalueCutoff = 1, qvalueCutoff = 0.05)
+	dea_kegg_enrich<-enricher(dea, TERM2GENE = gene2pathway, TERM2NAME = pathway2name, pvalueCutoff = 1, qvalueCutoff = 0.05)
 	
-	pdf('results.pdf',pointsize=2)
-	barplot(kegg_enrich, showCategory=20)
-	barplot(go_enrich, showCategory=20)
-	dotplot(go_enrich, showCategory=30) + ggtitle("dotplot for GO")
-	dotplot(kegg_enrich, showCategory=30) + ggtitle("dotplot for KEGG")
+	pdf('results_dea.pdf',width=10)
+	dotplot(dea_kegg_enrich, showCategory=30) + ggtitle("dotplot for KEGG")
+	dotplot(dea_go_enrich, showCategory=30) + ggtitle("dotplot for GO")
 	dev.off()
+	
+	pdf('results_hgt.pdf',width=10)
+        dotplot(hgt_kegg_enrich, showCategory=30) + ggtitle("dotplot for KEGG")
+        dotplot(hgt_go_enrich, showCategory=30) + ggtitle("dotplot for GO")
+        dev.off()
+	
 	
 ### 9.HGT  https://github.com/reubwn/hgt
 	
