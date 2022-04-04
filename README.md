@@ -280,9 +280,15 @@ Assembly Ppr, Nps, Hga with Pacbio HIFI, Tell-seq, Hi-c
 	library(ggplot2)
 	library(stringr)
 	
-##### Go database build https://blog.csdn.net/liuninghua521/article/details/111030304
+	![image](https://user-images.githubusercontent.com/34407101/161494391-93458d13-1e89-49fc-94b6-8573de74f331.png)
 
+	
+##### Go database build https://blog.csdn.net/liuninghua521/article/details/111030304
+	#protein database
 	egg<-read.delim("pro.emapper.annotations.test")
+	#cds database
+	egg<-read.delim("cds.emapper.annotations.test")
+		
 	gene_ids <- egg$query
 	eggnog_lines_with_go <- egg$GOs!='-'
 	eggnog_annoations_go <- str_split(egg[eggnog_lines_with_go,]$GOs, ",")
