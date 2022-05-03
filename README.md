@@ -133,10 +133,12 @@ Assembly Ppr, Nps, Hga with Pacbio HIFI, Tell-seq, Hi-c
     python run_pipeline.py -a contigs.fasta -l contigs.fasta.fai -b alignment.bed -e DNASE -o scaffolds 
 
 	3D-DNA
-	
+#### build reference(chrom size, assembly and bwa index) fastq(_R1.fastq.gz) two folder
+#### prepare genome files
 	python /NVME/Software/3d-dna/juicer/misc/generate_site_positions.py HindIII Ppr_instagrall Ppr_instagrall.fa
-	
         awk 'BEGIN{OFS="\t"}{print $1, $NF}' Ppr_instagrall_HindIII.txt > Ppr_instagrall.chrom.sizes
+	
+	~/Software/QC/TrimGalore-0.6.5/trim_galore -j 30 -q 30 --fastqc --paired --output_dir fastq ./Hga_1.fq.gz ./Hga_2.fq.gz
 	
 	/NVME/Software/3d-dna/juicer/scripts/juicer.sh -g Ppr -s none \
 	-z reference/Ppr.fa -t 40 \
