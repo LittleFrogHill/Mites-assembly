@@ -255,6 +255,25 @@ Assembly Ppr, Nps, Hga with Pacbio HIFI, Tell-seq, Hi-c
 		-e braker1_out/hintsfile.gff,braker2_out/hintsfile.gff \
 	        -o braker1+2_combined.gtf
 
+#### Add UTR region
+	mkdir braker_UTR_out
+	braker.pl --cores 40 --species=Ppr_UTR --genome=/RAID/Data/mites/genomes/Ppr/version03/Ppr_instagrall.polished.FINAL.softmask.fa \
+	 --softmasking --bam=/home/shangao/Scratch/breaker/000rna-seq/Ppr/Ppr_instagrall/changed_chr/PprAligned.sortedByCoord.out.bam \
+	  --UTR=on --useexisting --GENEMARK_PATH=/home/shangao/Software/BrAKER/gmes_linux_64/ --workingdir=braker_UTR_out
+	  
+	cat ../../braker2_out/add_UTR.sh
+	braker.pl --genome=/RAID/Data/mites/genomes/Ppr/version03/Ppr_instagrall.polished.FINAL.softmask.fa --addUTR=on --softmasking \
+    --bam=/home/shangao/Scratch/breaker/000rna-seq/Ppr/Ppr_instagrall/changed_chr/PprAligned.sortedByCoord.out.bam --workingdir=./ \
+    --AUGUSTUS_hints_preds=augustus.hints.gtf --cores=8 \
+    --skipAllTraining --species=Ppr_gene
+
+	/home/shangao/Software/TSEBRA/bin/fix_gtf_ids.py --gtf ../braker_utr.gtf --out braker1.fix.gtf
+	
+	/home/shangao/Software/TSEBRA/bin/tsebra.py -g braker1.fix.gtf,/home/shangao/Scratch/breaker/01braker/Ppr/Ppr_instagrall/softmask/braker2_out/augustus.hints_utr.gtf \
+	-c /home/shangao/Software/TSEBRA/config/default.cfg \
+	-e ../hintsfile.gff,../../braker2_out/hintsfile.gff \
+        -o braker1+2_combined.gtf
+
 #### change prefix
 	/NVME/Software/TSEBRA/bin/rename_gtf.py --gtf braker1+2_combined.gtf --prefix hap1 --out hap1.gtf
 
@@ -268,6 +287,10 @@ Assembly Ppr, Nps, Hga with Pacbio HIFI, Tell-seq, Hi-c
 	#emapper.py -m mmseqs --itype CDS --translate -i Ppr.cds -o test --decorate_gff Ppr.gff --decorate_gff_ID_field ID --resume
 	emapper.py -m mmseqs --itype CDS --translate -i Ppr.cds -o cds --decorate_gff Ppr.gff --decorate_gff_ID_field ID
 	emapper.py -i Ppr.pep --itype proteins -o pro --decorate_gff Ppr.gff --decorate_gff_ID_field ID > emapper.pro.log
+	
+##### add UTR eggmaper
+
+	emapper.py -m mmseqs --itype CDS -i Ppr.cds -o cds --decorate_gff Ppr.gff --decorate_gff_ID_field ID --resume
 	
 #### clusterprofilter
 	https://www.disgenet.org/static/disgenet_ap1/files/downloads/all_gene_disease_associations.tsv.gz
