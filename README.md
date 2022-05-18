@@ -581,4 +581,11 @@ The program outputs 3 files, suffixed with the tags:
 	java -cp /home/shangao/software/TBtools-1.098745/TBtools_JRE1.6.jar biocjava.bioIO.FastX.FastaIndex.FastaLongestRepresentater --inFasta /home/shangao/Scratch/breaker/01braker/Ppr/Ppr_hap2/Ppr_hap2.pep --outFasta Ppr_hap2_longest_protein.fa
 ### run OrthoFinder
 	/home/shangao/software/OrthoFinder_source/orthofinder.py -f ./
-	filter: 
+	filter: awk -v OFS="\t" '$4=="" {print$2,$3}' Orthogroups.txt > /home/shangao/Scratch/breaker/07kaks/hap1_vs_hap2/hap1_vs_hap2.homologs
+	
+	java -cp /home/shangao/software/TBtools-1.098745/TBtools_JRE1.6.jar biocjava.bioIO.FastX.FastaIndex.FastaLongestRepresentater --inFasta ../Ppr_hap2/Ppr_hap2.cds --outFasta /home/shangao/Scratch/breaker/07kaks/hap1_vs_hap2/Ppr_hap2_longest_cds.fa
+
+	sed -i 's/\./_/g' Ppr_hap2_longest_cds.fa
+	sed -i 's/\./_/g' Ppr_hap1_longest_cds.fa
+### run paraAT
+	ParaAT.pl -h hap1_vs_hap2.homologs -n hap1_vs_hap2.cds -a hap1_vs_hap2.pep -p proc -m muscle -f axt -g -k -o hap1_vs_hap2_results
