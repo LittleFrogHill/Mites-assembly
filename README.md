@@ -575,3 +575,10 @@ The program outputs 3 files, suffixed with the tags:
 	LEVIATHAN -b ../tell_sort_out/$i/${i}_temp/$i.sorted.bam -i ../tell_sort_out/$i/${i}_temp/$i.barcodeIndex.bci -g /RAID/Data/mites/genomes/Ppr/version03/Ppr_instagrall.polished.FINAL.fa -o $i.SV.vcf
 	done
 
+## 13. KAKS
+### get representive transcription
+	java -cp /home/shangao/software/TBtools-1.098745/TBtools_JRE1.6.jar biocjava.bioIO.FastX.FastaIndex.FastaLongestRepresentater --inFasta /home/shangao/Scratch/breaker/01braker/Ppr/Ppr_hap1/Ppr_hap1.pep --outFasta Ppr_hap1_longest_protein.fa
+	java -cp /home/shangao/software/TBtools-1.098745/TBtools_JRE1.6.jar biocjava.bioIO.FastX.FastaIndex.FastaLongestRepresentater --inFasta /home/shangao/Scratch/breaker/01braker/Ppr/Ppr_hap2/Ppr_hap2.pep --outFasta Ppr_hap2_longest_protein.fa
+### run OrthoFinder
+	/home/shangao/software/OrthoFinder_source/orthofinder.py -f ./
+	filter: 
