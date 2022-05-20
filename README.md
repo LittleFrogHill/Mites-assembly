@@ -279,6 +279,13 @@ Assembly Ppr, Nps, Hga with Pacbio HIFI, Tell-seq, Hi-c
 
 #### gtf2gff
 	/home/bonkis/anaconda2/pkgs/python-2.7.16-h9bab390_7/bin/python /home/shangao/software/gff3sort/Gtf2GFF.py braker1+2_combined_rmHiC_scaffold_10_changeHiC_scaffold_11.sort.rename.gtf
+	sed -i 's/ID/name/g' hap1.gff
+	sed -i 's/ID/name/g' hap2.gff
+	
+	java -cp /home/shangao/software/TBtools-1.098745/TBtools_JRE1.6.jar biocjava.bioIO.FastX.FastaIndex.FastaLongestRepresentater --inFasta Ppr_hap2.pep --outFasta Ppr_hap2_longest_protein.fa
+	
+	
+	
 
 #### eggmaper
 	cat eggmaper.sh 
