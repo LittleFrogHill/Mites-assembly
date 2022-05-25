@@ -596,3 +596,23 @@ The program outputs 3 files, suffixed with the tags:
 	sed -i 's/\./_/g' Ppr_hap1_longest_cds.fa
 ### run paraAT
 	ParaAT.pl -h hap1_vs_hap2.homologs -n hap1_vs_hap2.cds -a hap1_vs_hap2.pep -p proc -m muscle -f axt -g -k -o hap1_vs_hap2_results
+	
+	
+	
+## 14. build the shared folder
+### Hap0
+	cp /home/shangao/Scratch/breaker/01braker/Ppr/Ppr_instagrall/softmask/braker_UTR_out/test_TSEBRA/Ppr.unigene.pep ./Ppr.pep
+	cp /home/shangao/Scratch/breaker/01braker/Ppr/Ppr_instagrall/softmask/braker_UTR_out/test_TSEBRA/cds.emapper.gff ./Ppr_cds_emapper.gff
+	cp /home/shangao/Scratch/breaker/01braker/Ppr/Ppr_instagrall/softmask/braker_UTR_out/test_TSEBRA/Ppr.gtf .
+	cp /home/shangao/Scratch/breaker/01braker/Ppr/Ppr_instagrall/softmask/braker_UTR_out/test_TSEBRA/Ppr.gff .
+### Hap2
+	cp /home/shangao/Scratch/breaker/01braker/Ppr/Ppr_hap2/hap2.gff .	
+	cp /home/shangao/Scratch/breaker/01braker/Ppr/Ppr_hap2/hap2.gtf .
+	cp /home/shangao/Scratch/breaker/01braker/Ppr/Ppr_hap2/cds.emapper.gff ./Ppr_hap2_emapper.gff
+	cp /home/shangao/Scratch/breaker/01braker/Ppr/Ppr_hap2/Ppr_hap2_unigene.pep .
+### Hap1
+	cp /home/shangao/Scratch/breaker/01braker/Ppr/Ppr_hap1/hap1.gff .
+	cp /home/shangao/Scratch/breaker/01braker/Ppr/Ppr_hap1/hap1.gtf .
+	cp /home/shangao/Scratch/breaker/01braker/Ppr/Ppr_hap1/cds.emapper.gff ./Ppr_hap1_emapper.gff
+	cp /home/shangao/Scratch/breaker/01braker/Ppr/Ppr_hap1/Ppr_hap1_unigene.pep .
+
