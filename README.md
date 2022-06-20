@@ -597,6 +597,10 @@ The program outputs 3 files, suffixed with the tags:
 ### run paraAT
 	ParaAT.pl -h hap1_vs_hap2.homologs -n hap1_vs_hap2.cds -a hap1_vs_hap2.pep -p proc -m muscle -f axt -g -k -o hap1_vs_hap2_results
 	
+### new_method
+	grep -v ',' ../test/OrthoFinder/Results_May25/Orthogroups/Orthogroups.tsv > hap0_vs_Hga_unigene.homologs
+	ParaAT.pl -h hap0_vs_Hga_unigene.homologs.1 -n ../hap0_vs_Hga.cds -a ../hap0_vs_Hga.pep -p ../proc -m muscle -f axt -g -k -o hap0_vs_Hga_unigene_results
+
 	
 	
 ## 14. build the shared folder
