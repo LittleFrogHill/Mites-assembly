@@ -620,3 +620,30 @@ The program outputs 3 files, suffixed with the tags:
 	cp /home/shangao/Scratch/breaker/01braker/Ppr/Ppr_hap1/cds.emapper.gff ./Ppr_hap1_emapper.gff
 	cp /home/shangao/Scratch/breaker/01braker/Ppr/Ppr_hap1/Ppr_hap1_unigene.pep .
 
+## 15. dea
+
+	/home/shangao/software/subread-2.0.3-Linux-x86_64/bin/featureCounts -T 40 -p -B -M -a /home/shangao/Scratch/breaker/01braker/Ppr/Ppr_hap1/hap1.gtf -o featureCounts_hap1.txt /home/shangao/Scratch/breaker/000rna-seq/Ppr/divergent_fq4hap12/map_indentpent/Ppr_part1Aligned.sortedByCoord.out.bam /home/shangao/Scratch/breaker/000rna-seq/Ppr/divergent_fq4hap12/map_indentpent/Ppr_part2_1Aligned.sortedByCoord.out.bam
+	
+	python /home/shangao/script/python/dea/01merge_featureCounts_result_tohap1.py -s featureCounts_hap1.txt -t /home/shangao/Scratch/breaker/07kaks/hap1_vs_hap2_unigene/unigene_homologs/hap1_vs_hap2_unigene.homologs.1 -l featureCounts_hap2.txt -o merged_feature_count_hap1_hap2.txt
+	
+	R
+	library(DESeq2)
+	data <- read.table("merged_feature_count_hap1_hap2_title.txt", header=TRUE, quote="\t")
+	sampleNames <- c("Ppr_part1", "Ppr_part2_1", "Ppr_part2", "Ppr_part1_2")
+	database <- data.frame(name=sampleNames, condition=c("hap1", "hap1","hap2", "hap2"))
+	names(data)[7:10] <- sampleNames
+	countData <- as.matrix(data[7:10])
+	rownames(countData) <- data$Geneid
+	rownames(database) <- sampleNames
+	dds <- DESeqDataSetFromMatrix(countData, colData=database, design= ~ condition)
+	dds <- dds[ rowSums(counts(dds)) > 1, ]
+	dds <- DESeq(dds)
+	res <- results(dds)
+	write.csv(res, "res_des_output.csv")
+	resdata <- merge(as.data.frame(res), as.data.frame(counts(dds, normalized=TRUE)),by="row.names",sort=FALSE)
+	write.csv(resdata, "DEseq.result.gene", row.names=FALSE)
+
+
+	head -n 1 DEseq.result.gene |sed 's/,/\t/g' > gene.title
+	sed 's/,/\t/g' DEseq.result.gene |awk '$7<= 0.05 {print$0}' > gene
+	cat gene.title gene > DEseq.adj.gene
