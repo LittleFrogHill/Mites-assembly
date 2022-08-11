@@ -1,4 +1,4 @@
-		# Mites-assembly
+# Mites-assembly
 Assembly Ppr, Nps, Hga with Pacbio HIFI, Tell-seq, Hi-c
 ## 1.hifiasm assembly the Pacbio HIFI data
 	Ppr for example
