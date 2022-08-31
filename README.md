@@ -151,6 +151,23 @@ Assembly Ppr, Nps, Hga with Pacbio HIFI, Tell-seq, Hi-c
 	seqkit fx2tab Ppr.FINAL.fa -l -g -n -i -H
 	![image](https://user-images.githubusercontent.com/34407101/144658065-e1b75f1e-97ff-4be4-808c-c085ce8a5efc.png)
 
+### 7.3 Kat and genomescope
+	kat comp -t 8 -o 022812 /RAID/Data/Mites/Reads/PacBio/Ppr/238/m64093_220206_022812.hifi_reads.fastq.gz purged.fa
+	
+	/NVME/Software/KMC/kmc -k21 -t10 -m64 -ci1 -cs10000 -fm 110050 /RAID/Data/Mites/Reads/PacBio/Ppr/238/m64093_220131_110050.hifi_reads.fastq.gz ./tmp/
+	for i in 022812 110050
+	do
+	/NVME/Software/KMC/kmc_tools transform ${i}_csi histogram ${i} -cx10000
+
+	L=$(/NVME/Software/smudgeplot/exec/smudgeplot.py cutoff ${i}_csi_k21.hist L)
+	U=$(/NVME/Software/smudgeplot/exec/smudgeplot.py cutoff ${i}_csi_k21.hist U)
+	echo $L $U
+
+	/NVME/Software/KMC/kmc_tools transform ${i}_csi -ci"$L" -cx"$U" dump -s ${i}_csi_L"$L"_U"$U".dump
+	/NVME/Software/smudgeplot/exec/smudgeplot.py hetkmers -o ${i}_csi_L"$L"_U"$U" < ${i}_csi_L"$L"_U"$U".dump
+
+	/NVME/Software/smudgeplot/exec/smudgeplot.py plot ${i}_csi_L"$L"_U"$U"_coverages.tsv
+	done
 
 #### 8. BRAKER
 ### 8.1 mapping
