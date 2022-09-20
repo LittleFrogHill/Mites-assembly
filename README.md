@@ -614,9 +614,33 @@ The program outputs 3 files, suffixed with the tags:
 ### run paraAT
 	ParaAT.pl -h hap1_vs_hap2.homologs -n hap1_vs_hap2.cds -a hap1_vs_hap2.pep -p proc -m muscle -f axt -g -k -o hap1_vs_hap2_results
 	
-### new_method
+### new_method  without_UTR
+	java -cp /home/shangao/software/TBtools-1.098745/TBtools_JRE1.6.jar biocjava.bioIO.FastX.FastaIndex.FastaLongestRepresentater --inFasta /home/shangao/Scratch/breaker/01braker/Ppr/Ppr_hap1/Ppr_hap1.pep --outFasta Ppr_hap1_longest_protein.fa
+605
+        java -cp /home/shangao/software/TBtools-1.098745/TBtools_JRE1.6.jar biocjava.bioIO.FastX.FastaIndex.FastaLongestRepresentater --inFasta /home/shangao/Scratch/breaker/01braker/Ppr/Ppr_hap2/Ppr_hap2.pep --outFasta Ppr_hap2_longest_protein.fa
+	
 	grep -v ',' ../test/OrthoFinder/Results_May25/Orthogroups/Orthogroups.tsv > hap0_vs_Hga_unigene.homologs
 	ParaAT.pl -h hap0_vs_Hga_unigene.homologs.1 -n ../hap0_vs_Hga.cds -a ../hap0_vs_Hga.pep -p ../proc -m muscle -f axt -g -k -o hap0_vs_Hga_unigene_results
+	
+	grep -v ',' hap1_hap2/OrthoFinder/Results_Sep02/Orthogroups/Orthogroups.tsv  > hap1_hap2.homo
+	python /home/shangao/script/python/01dea/05filter_hap1_hap2_hap0_orthfinder_1.py -s hap1_hap0.homo -t hap2_hap0.homo -l hap1_hap2.homo -o hap1_vs_hap2_withoutUTR_longest.filtered_by_hap0
+
+	awk -v OFS='-' '{print$6,$7}' hap1_vs_hap2_withoutUTR_longest.filtered_by_hap0 > kaks_filtered_name
+	
+	for i in $(cat kaks_filtered_name)
+	do
+	cp ../hap1_hap2_kaks/hap1_vs_hap2_longest.results/${i}.cds_aln.axt.kaks ./kaks
+	done
+
+	cat kaks/* > hap1_hap2_filtered.kaks
+	grep -v 'Seq' hap1_hap2_filtered.kaks|sort -k5,5 -r|awk '$5!="NA"&& $5<10 {print$0}' > hap1_hap2_filtered_rmNAkaksless10.kaks
+	
+####dot plot
+	awk -v OFS='\t' '{print$1,$5,$6}' hap1_hap2_filtered_rmNAkaksless10.kaks > ../plot/dot/hap1_hap2_filtered_rmNAkaksless10.kaks.simple
+	
+	pdf("dot.pdf")
+	plot(data$Ka.Ks, -log(data$P.Value.Fisher.),xlab = "Ka/Ks",ylab = "-log10(P)", type="p",xlim=c(0,10),pch = 20,cex = 0.8,main="Ka/Ks distribution for allelic genes")
+	dev.off()
 
 	
 	
