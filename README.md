@@ -626,7 +626,7 @@ The program outputs 3 files, suffixed with the tags:
 	python /home/shangao/script/python/01dea/05filter_hap1_hap2_hap0_orthfinder_1.py -s hap1_hap0.homo -t hap2_hap0.homo -l hap1_hap2.homo -o hap1_vs_hap2_withoutUTR_longest.filtered_by_hap0
 
 	awk -v OFS='-' '{print$6,$7}' hap1_vs_hap2_withoutUTR_longest.filtered_by_hap0 > kaks_filtered_name
-	
+### get Kaks
 	for i in $(cat kaks_filtered_name)
 	do
 	cp ../hap1_hap2_kaks/hap1_vs_hap2_longest.results/${i}.cds_aln.axt.kaks ./kaks
@@ -635,14 +635,23 @@ The program outputs 3 files, suffixed with the tags:
 	cat kaks/* > hap1_hap2_filtered.kaks
 	grep -v 'Seq' hap1_hap2_filtered.kaks|sort -k5,5 -r|awk '$5!="NA"&& $5<10 {print$0}' > hap1_hap2_filtered_rmNAkaksless10.kaks
 	
-####dot plot
+#### dot plot
 	awk -v OFS='\t' '{print$1,$5,$6}' hap1_hap2_filtered_rmNAkaksless10.kaks > ../plot/dot/hap1_hap2_filtered_rmNAkaksless10.kaks.simple
 	
 	pdf("dot.pdf")
 	plot(data$Ka.Ks, -log(data$P.Value.Fisher.),xlab = "Ka/Ks",ylab = "-log10(P)", type="p",xlim=c(0,10),pch = 20,cex = 0.8,main="Ka/Ks distribution for allelic genes")
 	dev.off()
-
-	
+#### volin plot
+	python /home/shangao/script/python/01dea/07list2list4dea2kaks.py -s /home/shangao/Scratch/breaker/07kaks/without_UTR/hap1_vs_hap2_withoutUTR_longest.filtered_by_hap0 -t /home/shangao/Scratch/breaker/06homology_gene2haps/deseq_prep/divgent_fq/featureCount/without_UTR/DEseq.adj.gene -l hap1_hap2_filtered_rmNAkaksless10.kaks.simple -o hap1_hap2_filtered_rmNAkaksless10.kaks.simple.withdea
+	library(ggpubr)
+	library(ggplot2)
+	kaks_dealess3 <-read.table('hap1_hap2_filtered_rmNAkaksless10.kaks.simple.withdea', row.names='Sequence',header=T)
+	my_comparisons <-list( c("1", "2"))
+	kaks_dealess3$group<-as.factor(kaks_dealess3$group)
+	kaks_dealess10<-kaks_dealess3[kaks_dealess3$Ka.Ks<3,]
+	pdf("violin_plotless10.pdf")
+	ggplot(kaks_dealess10, aes(x = group, y = Ka.Ks))+ geom_violin(trim = FALSE, fill = "steelblue")+geom_boxplot(width = 0.2)+stat_compare_means(comparisons = my_comparisons)+stat_compare_means(label.y =3)
+	dev.off()
 	
 ## 14. build the shared folder
 ### Hap0
@@ -688,3 +697,24 @@ The program outputs 3 files, suffixed with the tags:
 	head -n 1 DEseq.result.gene |sed 's/,/\t/g' > gene.title
 	sed 's/,/\t/g' DEseq.result.gene |awk '$7<= 0.05 {print$0}' > gene
 	cat gene.title gene > DEseq.adj.gene
+### new version
+	/home/shangao/software/subread-2.0.3-Linux-x86_64/bin/featureCounts -T 40 -p -B -M -a /home/shangao/Scratch/breaker/01braker/Ppr/Ppr_hap1/without_UTR/hap1.gtf -o featureCounts_hap1.txt /home/shangao/Scratch/breaker/000rna-seq/Ppr/divergent_fq4hap12/map_indentpent/Ppr_part1Aligned.sortedByCoord.out.bam /home/shangao/Scratch/breaker/000rna-seq/Ppr/divergent_fq4hap12/map_indentpent/Ppr_part2_1Aligned.sortedByCoord.out.bam
+	/home/shangao/software/subread-2.0.3-Linux-x86_64/bin/featureCounts -T 40 -p -B -M -a /home/shangao/Scratch/breaker/01braker/Ppr/Ppr_hap2/without_UTR/hap2.gtf -o featureCounts_hap2.txt /home/shangao/Scratch/breaker/000rna-seq/Ppr/divergent_fq4hap12/map_indentpent/Ppr_part1_2Aligned.sortedByCoord.out.bam /home/shangao/Scratch/breaker/000rna-seq/Ppr/divergent_fq4hap12/map_indentpent/Ppr_part2Aligned.sortedByCoord.out.bam
+	
+	cat feature_count_results/featureCounts_hap1.txt feature_count_results/featureCounts_hap2.txt > merged_featureCounts.txt
+
+	python /home/shangao/script/python/01dea/06list2list4hap12tohap0_usingOrthFinder_results.py -s /home/shangao/Scratch/breaker/07kaks/without_UTR/hap1_vs_hap2_withoutUTR_longest.filtered_by_hap0 -t merged_featureCounts.txt -o merged_featureCounts_hap1hap2 -l merged_featureCounts_hap1hap2.missed
+	
+	library(DESeq2)
+	data <- read.table("merged_featureCounts_hap1hap2", header=TRUE, quote="\t")
+	sampleNames <- c("Ppr_part1", "Ppr_part2_1", "Ppr_part2", "Ppr_part1_2")
+	database <- data.frame(name=sampleNames, condition=c("hap1", "hap1","hap2", "hap2"))
+	rownames(countData) <- data$Geneid
+	dds <- DESeqDataSetFromMatrix(countData, colData=database, design= ~ condition)
+	dds <- dds[ rowSums(counts(dds)) > 1, ]
+	dds <- DESeq(dds)
+	res <- results(dds)
+	write.csv(res, "res_des_output.csv")
+	resdata <- merge(as.data.frame(res), as.data.frame(counts(dds, normalized=TRUE)),by="row.names",sort=FALSE)
+	write.csv(resdata, "DEseq.result.gene", row.names=FALSE)
+
