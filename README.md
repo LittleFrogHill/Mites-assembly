@@ -718,3 +718,104 @@ The program outputs 3 files, suffixed with the tags:
 	resdata <- merge(as.data.frame(res), as.data.frame(counts(dds, normalized=TRUE)),by="row.names",sort=FALSE)
 	write.csv(resdata, "DEseq.result.gene", row.names=FALSE)
 
+## 16. MAKER
+### 16.1 BRAKER (ab initio)
+	braker.pl --cores 40 --species=Ppr_2bam --genome=/RAID/Data/Mites/Genomes/Ppr/German_eiffel/hap0/Ppr.hap0.softmasked.fasta \
+	 --softmasking --bam=/home/shangao/Scratch/breaker/000rna-seq/Ppr/Ppr_instagrall/changed_chr/PprAligned.sortedByCoord.out.bam,/home/shangao/Scratch/breaker/000rna-seq/Ppr/Ppr_instagrall/changed_chr/Ppr_downAligned.sortedByCoord.out.bam \
+	  --gff3 --useexisting --GENEMARK_PATH=/home/shangao/Software/BrAKER/gmes_linux_64/ --workingdir=braker_UTR_out3
+	  
+### 16.2 Trinity+PASA
+#### Trinity
+	LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH
+Trinity --seqType fq --max_memory 60G --CPU 20  \
+  	--left /RAID/Data/mites/transcriptomes/RNA_annotation/150360_R1.fq.gz,/RAID/Data/mites/transcriptomes/RNA_annotation/clean_data/SRR4039022_1_val_1.fq.gz \
+  	--right /RAID/Data/mites/transcriptomes/RNA_annotation/150360_R2.fq.gz,/RAID/Data/mites/transcriptomes/RNA_annotation/clean_data/SRR4039022_2_val_2.fq.gz \
+	--output ./trinity.out1
+#### PASA (conda activate pasa)
+	/home/jbast/anaconda3/envs/funannotate_env/opt/pasa-2.5.2/Launch_PASA_pipeline.pl \
+	-c /home/shangao/Scratch/breaker/03RNA_assembly/denovo_assembly/trinity.out/pasa/alignAssembly.config \
+	-C -R -g /RAID/Data/Mites/Genomes/Ppr/German_eiffel/hap0/Ppr.hap0.softmasked.fasta \
+	-t /home/shangao/Scratch/breaker/03RNA_assembly/denovo_assembly/trinity.out/pasa/../Trinity.fasta \
+	--ALIGNERS blat --CPU 10
+	
+	cat alignAssembly.config
+	## templated variables to be replaced exist as <__var_name__>
+
+	# database settings
+	DATABASE=/home/shangao/Scratch/breaker/03RNA_assembly/denovo_assembly/trinity.out/pasa/pasa.sqlite
+	
+	#######################################################
+	# Parameters to specify to specific scripts in pipeline
+	# create a key = "script_name" + ":" + "parameter" 
+	# assign a value as done above.
+	
+	#script validate_alignments_in_db.dbi
+	validate_alignments_in_db.dbi:--MIN_PERCENT_ALIGNED=80
+	validate_alignments_in_db.dbi:--MIN_AVG_PER_ID=80
+	
+	#script subcluster_builder.dbi
+	subcluster_builder.dbi:-m=50
+	
+### 16.3 StringTie
+	stringtie -p 50 -o Ppr_hap0_PprAligned_stringtie.gtf /home/shangao/Scratch/breaker/000rna-seq/Ppr/Ppr_instagrall/changed_chr/PprAligned.sortedByCoord.out.bam 
+	stringtie -p 50 -o Ppr_hap0_Ppr_downAligned_stringtie.gtf /home/shangao/Scratch/breaker/000rna-seq/Ppr/Ppr_instagrall/changed_chr/Ppr_downAligned.sortedByCoord.out.bam
+	stringtie --merge -p 50  -o merged.gtf Ppr_hap0_PprAligned_stringtie.gtf Ppr_hap0_Ppr_downAligned_stringtie.gtf
+	/home/jbast/anaconda3/envs/funannotate_env/opt/pasa-2.5.2/misc_utilities/cufflinks_gtf_genome_to_cdna_fasta.pl merged.gtf /RAID/Data/Mites/Genomes/Ppr/German_eiffel/hap0/Ppr.hap0.softmasked.fasta > Ppr_merged.fasta
+	/home/jbast/anaconda3/envs/funannotate_env/opt/pasa-2.5.2/misc_utilities/cufflinks_gtf_to_alignment_gff3.pl merged.gtf > transcripts.gff3
+
+	/home/shangao/.conda/envs/Trinity/bin/TransDecoder.LongOrfs -t Ppr_merged.fasta > TransDecoder.LongOrfs.log
+	/home/shangao/.conda/envs/Trinity/bin/TransDecoder.Predict -t Ppr_merged.fasta > TransDecoder.Predict.log 
+
+	/home/jbast/anaconda3/envs/funannotate_env/bin/cdna_alignment_orf_to_genome_orf.pl Ppr_merged.fasta.transdecoder.gff3 transcripts.gff3 Ppr_merged.fasta > Ppr_merged.fasta.transdecoder.genome.gff3
+	
+### 16.4 EVidenceModeler 
+	ln /home/shangao/Scratch/breaker/03RNA_assembly/denovo_assembly/trinity.out/pasa/pasa.sqlite.pasa_assemblies.gff3 transcript_alignments.gff3
+	cat /home/shangao/Scratch/breaker/03RNA_assembly/genome_guide/Ppr/stringtie/hap0/Ppr_merged.fasta.transdecoder.genome.gff3 /home/shangao/Scratch/breaker/01braker/Ppr/Ppr_instagrall/softmask/braker_UTR_out3/augustus.hints.gff3 > gene_predictions.gff3
+	
+	export genome=/RAID/Data/Mites/Genomes/Ppr/German_eiffel/hap0/Ppr.hap0.softmasked.fasta
+	export prefix=Ppr_hap0
+	
+	/home/shangao/software/EVidenceModeler-1.1.1/EvmUtils/partition_EVM_inputs.pl --genome $genome --gene_predictions `pwd`/gene_predictions.gff3 --transcript_alignments `pwd`/transcript_alignments.gff3 --segmentSize 100000 --overlapSize 10000 --partition_listing partitions_list.out
+	
+	/home/shangao/software/EVidenceModeler-1.1.1/EvmUtils/write_EVM_commands.pl \
+		--genome $genome --weights /home/shangao/Scratch/breaker/09maker/hap0/single_bam/weights.txt \
+		--gene_predictions `pwd`/gene_predictions.gff3 \
+		--transcript_alignments `pwd`/transcript_alignments.gff3 \
+		--output_file_name evm.out  --partitions partitions_list.out >  commands.list
+	parallel --jobs 10 < commands.list
+	
+	/home/shangao/software/EVidenceModeler-1.1.1/EvmUtils/recombine_EVM_partial_outputs.pl --partitions partitions_list.out --output_file_name evm.out
+	
+	/home/shangao/software/EVidenceModeler-1.1.1/EvmUtils/convert_EVM_outputs_to_GFF3.pl  --partitions partitions_list.out --output evm.out  --genome $genome
+	
+	find . -regex ".*evm.out.gff3" -exec cat {} \; | bedtools sort -i - > EVM.all.gff
+	
+### 16.5 fix GFF and convert GTF, pep,cds
+	export genome=/RAID/Data/Mites/Genomes/Ppr/German_eiffel/hap0/Ppr.hap0.softmasked.fasta
+	export prefix=Ppr_hap0
+	
+	/home/jbast/anaconda3/bin/gffread EVM.all.gff -g $genome -y EVM.all.pep
+	
+	agat_convert_sp_gff2gtf.pl --gff EVM.all.gff -o EVM.all.gtf
+	
+	/NVME/Software/TSEBRA/bin/rename_gtf.py --gtf EVM.all.gtf --prefix $prefix --out $prefix.gtf 
+	
+	agat_convert_sp_gxf2gxf.pl -g $prefix.gtf -o $prefix.gff
+	
+	awk -v OFS="\t" '$5-$4>3 {print$0}' $prefix.gff > $prefix.gff.1
+	
+	/home/jbast/anaconda3/bin/gffread $prefix.gff.1 -g $genome -y $prefix.$prefix.gff.1.pep
+	
+	/home/jkirangw/miniconda3/envs/genome_asm/bin/bioawk -c fastx 'length($seq) < 50 {print $name}' $prefix.$prefix.gff.1.pep | cut -d '=' -f 2 > short_aa_gene_list.txt
+	
+	grep -v -w -f short_aa_gene_list.txt $prefix.gff.1 > ${prefix}_filter_50aa_exon.gff
+	
+	rm -f $prefix.$prefix.gff.1.pep $prefix.gff.1 
+	
+	/home/jbast/anaconda3/bin/gffread ${prefix}_filter_50aa_exon.gff -g $genome -y ${prefix}_filter_50aa_exon.pep
+	/home/jbast/anaconda3/bin/gffread ${prefix}_filter_50aa_exon.gff -g $genome -x ${prefix}_filter_50aa_exon.cds
+	agat_convert_sp_gff2gtf.pl --gff ${prefix}_filter_50aa_exon.gff -o ${prefix}_filter_50aa_exon.gtf	
+	
+### 16.6 Add UTR
+
