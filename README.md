@@ -727,11 +727,11 @@ The program outputs 3 files, suffixed with the tags:
 ### 16.2 Trinity+PASA
 #### Trinity
 	LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH
-Trinity --seqType fq --max_memory 60G --CPU 20  \
-  	--left /RAID/Data/mites/transcriptomes/RNA_annotation/150360_R1.fq.gz,/RAID/Data/mites/transcriptomes/RNA_annotation/clean_data/SRR4039022_1_val_1.fq.gz \
-  	--right /RAID/Data/mites/transcriptomes/RNA_annotation/150360_R2.fq.gz,/RAID/Data/mites/transcriptomes/RNA_annotation/clean_data/SRR4039022_2_val_2.fq.gz \
-	--output ./trinity.out1
+	export LD_LIBRARY_PATH
+	Trinity --seqType fq --max_memory 60G --CPU 20  \
+	  	--left /RAID/Data/mites/transcriptomes/RNA_annotation/150360_R1.fq.gz,/RAID/Data/mites/transcriptomes/RNA_annotation/clean_data/SRR4039022_1_val_1.fq.gz \
+	  	--right /RAID/Data/mites/transcriptomes/RNA_annotation/150360_R2.fq.gz,/RAID/Data/mites/transcriptomes/RNA_annotation/clean_data/SRR4039022_2_val_2.fq.gz \
+		--output ./trinity.out1
 #### PASA (conda activate pasa)
 	/home/jbast/anaconda3/envs/funannotate_env/opt/pasa-2.5.2/Launch_PASA_pipeline.pl \
 	-c /home/shangao/Scratch/breaker/03RNA_assembly/denovo_assembly/trinity.out/pasa/alignAssembly.config \
