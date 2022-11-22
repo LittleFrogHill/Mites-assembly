@@ -168,6 +168,11 @@ Assembly Ppr, Nps, Hga with Pacbio HIFI, Tell-seq, Hi-c
 
 	/NVME/Software/smudgeplot/exec/smudgeplot.py plot ${i}_csi_L"$L"_U"$U"_coverages.tsv
 	done
+	
+### 7.4 GenomeMask
+	RepeatMasker -lib ath-families.fa -e ncbi -dir ../RepeatModeler /home/shangao/Scratch/hi-c/sala2/Ppr2/scaffolds/scaffolds_FINAL.fasta
+	
+	perl ~/Software/EDTA/EDTA.pl --genome /home/shangao/Scratch/hi-c/juicer/Ppr/Ppr_withoutchange/review/Ppr.FINAL.sort.fasta --sensitive 1 --anno 1  --threads 50 --overwrite 1
 
 #### 8. BRAKER
 ### 8.1 mapping
