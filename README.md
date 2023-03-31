@@ -414,7 +414,22 @@ Assembly Ppr, Nps, Hga with Pacbio HIFI, Tell-seq, Hi-c
 #### kegg database with python script /home/shangao/script/python/divide_eggnoger_results2clusterprofliter.py
 	kegg <- read.delim("pro.emapper.annotations_Ko.term")
 	ko2name(kegg$keggId) -> y
-	
+
+#### Reactome 
+	awk -vFS='\t' -vOFS='\t'  '$15!="-"&&$15!=""{print$1,$15}' hap0_UTR_longest.f.pep_1.tsv.test|sort |uniq > hap0_UTR_longest.f.pep_1.tsv.testforReactomeBuild
+	python /home/shangao/script/python/01dea/10Build_ReactomeDB_from_interproscan.py -t hap0_UTR_longest.f.pep_1.tsv.testforReactomeBuild -o hap0_UTR_longest.f.pep_1.tsv.testforReactomeBuild.result
+	sort hap0_UTR_longest.f.pep_1.tsv.testforReactomeBuild.result|uniq|grep 'Rea' > hap0_UTR_longest.f.pep_1.tsv.testforReactomeBuild.result.Reactom
+
+	egg<-read.delim("ReactomePathways.txt",header=F)
+	rea2gene<-read.delim("hap0_UTR_longest.f.pep_1.tsv.testforReactomeBuild.result.Reactome.head")
+	rea2descrption<-read.delim("ReactomePathways.txt",header=F)
+	colnames(rea2descrption) <- c("reaID", "pathway", "animals")
+	head(rea2descrption)
+	head(rea2gene)
+	hgt_rea <- enricher(hgt_gene, TERM2GENE = rea2gene[,c("items","geneID")], TERM2NAME = rea2descrption[,c("reaID","pathway")], pAdjustMethod = "BH",pvalueCutoff  = 0.05, qvalueCutoff  = 0.2)
+	write.table(as.data.frame(ego),"go_enrich.csv",sep="\t",row.names =F,quote=F)
+
+
 #### enrich
 	hgt<-read.delim("/home/shangao/Scratch/breaker/04hgt/Ppr/softmask/diamond_results.daa.taxid.gz.HGT_candidates.Metazoa.hU30.CHS90.txt.genelist")
 	hgt<-as.matrix(hgt)
@@ -737,6 +752,8 @@ The program outputs 3 files, suffixed with the tags:
 	  	--left /RAID/Data/mites/transcriptomes/RNA_annotation/150360_R1.fq.gz,/RAID/Data/mites/transcriptomes/RNA_annotation/clean_data/SRR4039022_1_val_1.fq.gz \
 	  	--right /RAID/Data/mites/transcriptomes/RNA_annotation/150360_R2.fq.gz,/RAID/Data/mites/transcriptomes/RNA_annotation/clean_data/SRR4039022_2_val_2.fq.gz \
 		--output ./trinity.out1
+		
+	
 #### PASA (conda activate pasa)
 	/home/jbast/anaconda3/envs/funannotate_env/opt/pasa-2.5.2/Launch_PASA_pipeline.pl \
 	-c /home/shangao/Scratch/breaker/03RNA_assembly/denovo_assembly/trinity.out/pasa/alignAssembly.config \
@@ -822,5 +839,28 @@ The program outputs 3 files, suffixed with the tags:
 	/home/jbast/anaconda3/bin/gffread ${prefix}_filter_50aa_exon.gff -g $genome -x ${prefix}_filter_50aa_exon.cds
 	agat_convert_sp_gff2gtf.pl --gff ${prefix}_filter_50aa_exon.gff -o ${prefix}_filter_50aa_exon.gtf	
 	
+	
+	rename new_version
+	agat_convert_sp_gff2gtf.pl --gff ~/Scratch/breaker/09maker/$i/EVM.all.gff -o ~/Scratch/breaker/09maker/$i/EVM.all.gtf
+	/NVME/Software/TSEBRA/bin/rename_gtf.py --gtf ~/Scratch/breaker/09maker/$i/EVM.all.gtf --prefix $i --out ~/Scratch/breaker/09maker/$i/$i.gtf
+	agat_convert_sp_gxf2gxf.pl -g ~/Scratch/breaker/09maker/$i/$i.gtf -o ~/Scratch/breaker/09maker/$i/$i.gff3
+	agat_convert_sp_gff2gtf.pl --gff ~/Scratch/breaker/09maker/$i/$i.gff3 -o ~/Scratch/breaker/09maker/$i/$i.gtf
+	mv ~/Scratch/breaker/09maker/$i/EVM.all.gff ~/Scratch/breaker/09maker/$i/EVM.all.raw.gff
+	cp ~/Scratch/breaker/09maker/$i/$i.gff3 ~/Scratch/breaker/09maker/$i/EVM.all.gff3
+	
 ### 16.6 Add UTR
+	for i in Russia_hap0 \
+	Russia_hapA \
+	Russia_hapB
+	do
+	mkdir $i/add_UTR
+	echo "DATABASE=/home/shangao/Scratch/breaker/09maker/$i/pasa/test.sqlite" > /home/shangao/Scratch/breaker/09maker/$i/add_UTR/annotCompare.config
+	echo '
+	genome=
+	/home/jbast/anaconda3/pkgs/pasa-2.5.2-h87f3376_0/opt/pasa-2.5.2/scripts/Load_Current_Gene_Annotations.dbi -c  annotCompare.config -g $genome -P ../EVM.all.gff
+	
+	/home/jbast/anaconda3/envs/funannotate_env/opt/pasa-2.5.2/Launch_PASA_pipeline.pl -c  annotCompare.config -A -g $genome -t ~/Scratch/breaker/03RNA_assembly/denovo_assembly/trinity.out/pasa/Trinity.fasta.clean
+	' > /home/shangao/Scratch/breaker/09maker/$i/add_UTR/test.sh
+	
+	done
 
