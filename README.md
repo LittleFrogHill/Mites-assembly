@@ -306,7 +306,7 @@ Assembly Ppr, Nps, Hga with Pacbio HIFI, Tell-seq, Hi-c
 	
 	java -cp /home/shangao/software/TBtools-1.098745/TBtools_JRE1.6.jar biocjava.bioIO.FastX.FastaIndex.FastaLongestRepresentater --inFasta Ppr_hap2.pep --outFasta Ppr_hap2_longest_protein.fa
 	
-	
+
 	
 
 #### eggmaper
@@ -621,30 +621,40 @@ The program outputs 3 files, suffixed with the tags:
 
 ## 13. KAKS
 ### get representive transcription
+
+	####cat rename1.sh
+	agat_convert_sp_gff2gtf.pl --gff ~/Scratch/breaker/09maker/$i/EVM.all.raw.gff -o ~/Scratch/breaker/09maker/$i/EVM.all.gtf
+	/NVME/Software/TSEBRA/bin/rename_gtf.py --gtf ~/Scratch/breaker/09maker/$i/EVM.all.gtf --prefix $i --out ~/Scratch/breaker/09maker/$i/$i.gtf
+	agat_convert_sp_gxf2gxf.pl -g ~/Scratch/breaker/09maker/$i/$i.gtf -o ~/Scratch/breaker/09maker/$i/$i.gff3
+	agat_convert_sp_gff2gtf.pl --gff ~/Scratch/breaker/09maker/$i/$i.gff3 -o ~/Scratch/breaker/09maker/$i/$i.gtf
+	mv ~/Scratch/breaker/09maker/$i/EVM.all.gff ~/Scratch/breaker/09maker/$i/EVM.all.raw.gff
+	cp ~/Scratch/breaker/09maker/$i/$i.gff3 ~/Scratch/breaker/09maker/$i/EVM.all.gff3
+	
+	####cat rename1.sh
+	agat_convert_sp_gff2gtf.pl --gff /home/shangao/Scratch/breaker/09maker/$i/add_UTR/$i.gff3 -o /home/shangao/Scratch/breaker/09maker/$i/add_UTR/$i.gtf
+	#agat_convert_sp_gxf2gxf.pl -g /home/shangao/Scratch/breaker/09maker/Ppr_alt1/add_UTR/$i.gff3 -o /home/shangao/Scratch/breaker/09maker/Ppr_alt1/add_UTR/$i.gtf
+	/NVME/Software/TSEBRA/bin/rename_gtf.py --gtf /home/shangao/Scratch/breaker/09maker/$i/add_UTR/$i.gtf --prefix $i --out /home/shangao/Scratch/breaker/09maker/$i/add_UTR/$i.named.gtf
+	agat_convert_sp_gxf2gxf.pl -g /home/shangao/Scratch/breaker/09maker/$i/add_UTR/$i.named.gtf -o /home/shangao/Scratch/breaker/09maker/$i/add_UTR/$i.named.gff3
+
+	
+	java -cp /home/shangao/software/TBtools-1.098745/TBtools_JRE1.6.jar biocjava.bioIO.FastX.FastaIndex.FastaLongestRepresentater --inFasta Ppr_alt1.cds --outFasta Ppr_alt1_longest.cds
+
+	/home/shangao/software/Ruminant_pip/Annotation/Gene_annotation/script/cds2aa.pl Ppr_alt1_longest.cds > Ppr_alt1_longest.pep
+
+
 	java -cp /home/shangao/software/TBtools-1.098745/TBtools_JRE1.6.jar biocjava.bioIO.FastX.FastaIndex.FastaLongestRepresentater --inFasta /home/shangao/Scratch/breaker/01braker/Ppr/Ppr_hap1/Ppr_hap1.pep --outFasta Ppr_hap1_longest_protein.fa
 	java -cp /home/shangao/software/TBtools-1.098745/TBtools_JRE1.6.jar biocjava.bioIO.FastX.FastaIndex.FastaLongestRepresentater --inFasta /home/shangao/Scratch/breaker/01braker/Ppr/Ppr_hap2/Ppr_hap2.pep --outFasta Ppr_hap2_longest_protein.fa
 ### run OrthoFinder
 	/home/shangao/software/OrthoFinder_source/orthofinder.py -f ./
-	filter: awk -v OFS="\t" '$4=="" {print$2,$3}' Orthogroups.txt > /home/shangao/Scratch/breaker/07kaks/hap1_vs_hap2/hap1_vs_hap2.homologs
 	
-	java -cp /home/shangao/software/TBtools-1.098745/TBtools_JRE1.6.jar biocjava.bioIO.FastX.FastaIndex.FastaLongestRepresentater --inFasta ../Ppr_hap2/Ppr_hap2.cds --outFasta /home/shangao/Scratch/breaker/07kaks/hap1_vs_hap2/Ppr_hap2_longest_cds.fa
+	grep -v ',' hap1_hap2/OrthoFinder/Results_Apr11/Orthogroups/Orthogroups.tsv > hap1_hap2.homo
 
-	sed -i 's/\./_/g' Ppr_hap2_longest_cds.fa
-	sed -i 's/\./_/g' Ppr_hap1_longest_cds.fa
+	awk -vOFS='\t' '{print$6,$7}' ../hap1_vs_hap2_filtered_by_hap0 > hap1_hap2.homo
+	
+	python /home/shangao/script/python/01dea/05filter_hap1_hap2_hap0_orthfinder.py -s hap0_hap1.homo -t hap0_hap2.homo -l hap1_hap2.homo -o hap1_vs_hap2_filtered_by_hap0
+
 ### run paraAT
 	ParaAT.pl -h hap1_vs_hap2.homologs -n hap1_vs_hap2.cds -a hap1_vs_hap2.pep -p proc -m muscle -f axt -g -k -o hap1_vs_hap2_results
-	
-### new_method  without_UTR
-	java -cp /home/shangao/software/TBtools-1.098745/TBtools_JRE1.6.jar biocjava.bioIO.FastX.FastaIndex.FastaLongestRepresentater --inFasta /home/shangao/Scratch/breaker/01braker/Ppr/Ppr_hap1/Ppr_hap1.pep --outFasta Ppr_hap1_longest_protein.fa
-605
-        java -cp /home/shangao/software/TBtools-1.098745/TBtools_JRE1.6.jar biocjava.bioIO.FastX.FastaIndex.FastaLongestRepresentater --inFasta /home/shangao/Scratch/breaker/01braker/Ppr/Ppr_hap2/Ppr_hap2.pep --outFasta Ppr_hap2_longest_protein.fa
-	
-	grep -v ',' ../test/OrthoFinder/Results_May25/Orthogroups/Orthogroups.tsv > hap0_vs_Hga_unigene.homologs
-	ParaAT.pl -h hap0_vs_Hga_unigene.homologs.1 -n ../hap0_vs_Hga.cds -a ../hap0_vs_Hga.pep -p ../proc -m muscle -f axt -g -k -o hap0_vs_Hga_unigene_results
-	
-	grep -v ',' hap1_hap2/OrthoFinder/Results_Sep02/Orthogroups/Orthogroups.tsv  > hap1_hap2.homo
-	python /home/shangao/script/python/01dea/05filter_hap1_hap2_hap0_orthfinder_1.py -s hap1_hap0.homo -t hap2_hap0.homo -l hap1_hap2.homo -o hap1_vs_hap2_withoutUTR_longest.filtered_by_hap0
-
 	awk -v OFS='-' '{print$6,$7}' hap1_vs_hap2_withoutUTR_longest.filtered_by_hap0 > kaks_filtered_name
 ### get Kaks
 	for i in $(cat kaks_filtered_name)
@@ -848,7 +858,7 @@ The program outputs 3 files, suffixed with the tags:
 	mv ~/Scratch/breaker/09maker/$i/EVM.all.gff ~/Scratch/breaker/09maker/$i/EVM.all.raw.gff
 	cp ~/Scratch/breaker/09maker/$i/$i.gff3 ~/Scratch/breaker/09maker/$i/EVM.all.gff3
 	
-### 16.6 Add UTR
+### 16.6 Add UTR(run rename.sh before)
 	for i in Russia_hap0 \
 	Russia_hapA \
 	Russia_hapB
