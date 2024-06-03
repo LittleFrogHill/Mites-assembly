@@ -873,4 +873,20 @@ The program outputs 3 files, suffixed with the tags:
 	' > /home/shangao/Scratch/breaker/09maker/$i/add_UTR/test.sh
 	
 	done
+## 17 effect size
+	conda activate R2.11
+ 	R
+  	library(dplyr)      #data_frame, %>%, filter, summarise, group_by
+	library(rstatix)    # cohen's d
+	library(ggplot2)    # ggplot, stat_…, geom_…, etc
+	library(coin) 
+ 	kaks_dealess3 <-read.table('exon.list')
+  	head(kaks_dealess3)
+	    V1 V2  V3
+	1 4.25  3 dea
+	2 2.00  3 dea
+ 	exon_SNP <-read.table('exon.list')
+	wilcox_effsize(V1 ~ V3, data = exon_SNP)
+  	t_effectSize <- cohens_d(V1 ~ V3, data = exon_SNP)
+
 
