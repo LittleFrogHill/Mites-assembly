@@ -874,6 +874,7 @@ The program outputs 3 files, suffixed with the tags:
 	
 	done
 ## 17 effect size
+	https://rpubs.com/cly/compare2condition_independent
 	conda activate R2.11
  	R
   	library(dplyr)      #data_frame, %>%, filter, summarise, group_by
