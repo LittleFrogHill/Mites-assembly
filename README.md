@@ -663,10 +663,10 @@ The program outputs 3 files, suffixed with the tags:
 	done
 
 	cat kaks/* > hap1_hap2_filtered.kaks
-	grep -v 'Seq' hap1_hap2_filtered.kaks|sort -k5,5 -r|awk '$5!="NA"&& $5<10 {print$0}' > hap1_hap2_filtered_rmNAkaksless10.kaks
+	grep -v 'Seq' hap1_hap2_filtered.kaks|awk -vOFS='\t' '$4>0.001&&$5!="NA"{print$1,$5,$6}'> hap1_hap2_rmNA_ks0.001.kaks
 	
 #### dot plot
-	awk -v OFS='\t' '{print$1,$5,$6}' hap1_hap2_filtered_rmNAkaksless10.kaks > ../plot/dot/hap1_hap2_filtered_rmNAkaksless10.kaks.simple
+	#awk -v OFS='\t' '{print$1,$5,$6}' hap1_hap2_filtered_rmNAkaksless10.kaks > ../plot/dot/hap1_hap2_filtered_rmNAkaksless10.kaks.simple
 	
 	pdf("dot.pdf")
 	plot(data$Ka.Ks, -log(data$P.Value.Fisher.),xlab = "Ka/Ks",ylab = "-log10(P)", type="p",xlim=c(0,10),pch = 20,cex = 0.8,main="Ka/Ks distribution for allelic genes")
