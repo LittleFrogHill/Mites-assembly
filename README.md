@@ -822,6 +822,13 @@ The program outputs 3 files, suffixed with the tags:
 	/home/shangao/software/EVidenceModeler-1.1.1/EvmUtils/convert_EVM_outputs_to_GFF3.pl  --partitions partitions_list.out --output evm.out  --genome $genome
 	
 	find . -regex ".*evm.out.gff3" -exec cat {} \; | bedtools sort -i - > EVM.all.gff
+
+ 	cat ./../hap1/weights.txt
+	ABINITIO_PREDICTION	AUGUSTUS	4
+	TRANSCRIPT	assembler-database.sqlite	7
+	OTHER_PREDICTION	transdecoder	8
+	PROTEIN	gth 7
+
 	
 ### 16.5 fix GFF and convert GTF, pep,cds
 	export genome=/RAID/Data/Mites/Genomes/Ppr/German_eiffel/hap0/Ppr.hap0.softmasked.fasta
