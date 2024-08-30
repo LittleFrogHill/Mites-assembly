@@ -9,6 +9,61 @@ Assembly Ppr, Nps, Hga with Pacbio HIFI, Tell-seq, Hi-c
 	  Only HIFI
 		
 		/home/shangao/software/hifiasm-0.16.1/hifiasm -o test -t 50 /home/shangao/Data/../mites/reads/PacBio/Ppr/m64093_200831_134054.Q20.fastq.gz
+### 1.1 flye assembly + graphunzip
+	#awk '/^S/{print ">"$2"\n"$3}' ../flye_v29_assembly_graph.gfa > flye_v29_assembly_graph.fa
+	#bwa index flye_v29_assembly_graph.fa
+	#less ../genome-BC_1.fastq.gz|sed 's/\_/ BX:Z:/g'  > genome-BC_1.fastq.gz
+	#less ../genome-BC_2.fastq.gz|sed 's/\_/ BX:Z:/g'  > genome-BC_2.fastq.gz
+
+	#bwa mem flye_v29_assembly_graph.fa genome-BC_1.fastq.gz genome-BC_2.fastq.gz  -C > flye_v29_assembly_graph_linkedReads.sam
+	#/NVME/Software/GraphUnzip/graphunzip.py linked-reads-IM --barcoded_SAM flye_v29_assembly_graph_linkedReads.sam -g ../flye_v29_assembly_graph.gfa --linked_reads_IM linkedreads_interactionmatrix1.txt
+
+	#/NVME/Software/GraphUnzip/graphunzip.py unzip -g  ../flye_v29_assembly_graph.gfa -k linkedreads_interactionmatrix1.txt -l graphUnzip_longreads/Hga_longreads_aligned_on_gfa.gaf -o assembly_unzipped.gfa
+
+	/NVME/Software/GraphUnzip/graphunzip.py unzip -g  ../flye_v29_assembly_graph.gfa  -l graphUnzip_longreads/Hga_longreads_aligned_on_gfa.gaf -o assembly_unzipped.gfa
+	/home/jbast/anaconda3/envs/graphUnzip/bin/GraphAligner --global-alignment -x vg -f /RAID/Data/Mites/Reads/PacBio/Hga/new_Hga.fastq.gz -g ../../flye_v29_assembly_graph.gfa -a Hga_longreads_aligned_on_gfa.gaf
+
+ 	export pri_asm=../output_scaffolds_test.fasta
+	export hifi_reads=/RAID/Data/Mites/Reads/PacBio/Hga/new_Hga.fastq.gz
+	export minimap2=/home/jbast/anaconda3/envs/BRAKER/pkgs/minimap2-2.24-h7132678_1/bin/minimap2
+	export split_fa=/NVME/Software/purge_dups/bin/split_fa
+	export pbcstat=/NVME/Software/purge_dups/bin/pbcstat
+	export calcuts=/NVME/Software/purge_dups/bin/calcuts
+	#export hist_plot.py=/NVME/Software/purge_dups/scripts/hist_plot.py
+	export purge_dups=/NVME/Software/purge_dups/bin/purge_dups
+	export get_seqs=/NVME/Software/purge_dups/bin/get_seqs
+	
+	#pri_asm="tellseq_scaffolds.fasta"
+	
+	$minimap2 -x map-hifi ${pri_asm} $hifi_reads | gzip -c - > minimap2_hifi.scaffolded.paf.gz
+	
+	$split_fa $pri_asm > $pri_asm.split
+	$minimap2 -xasm5 -DP $pri_asm.split $pri_asm.split | gzip -c - > $pri_asm.split.self.paf.gz
+	
+	$pbcstat minimap2_hifi.scaffolded.paf.gz 
+	$calcuts -l 5 -m 73 -u 327 PB.stat > cutoffs 2>calcults.log
+	
+	/NVME/Software/purge_dups/scripts/hist_plot.py -c cutoffs PB.stat purge_dups.${pri_asm}.png
+	
+	$purge_dups -2 -T cutoffs -c PB.base.cov $pri_asm.split.self.paf.gz > dups.bed 2> purge_dups.log
+	$get_seqs dups.bed $pri_asm
+	mv purged.fa scaffolds.alt1.fasta
+	mv hap.fa scaffolds.alt2.fasta
+
+ 	ragtag.py scaffold -o ragtag_alt1_scaffolded_alt2 scaffolds.alt2.fasta scaffolds.alt1.fasta
+	ragtag.py scaffold -o ragtag_alt2_scaffolded_alt2 scaffolds.alt1.fasta scaffolds.alt2.fasta
+
+  	#test
+	/NVME/Software/purge_dups/bin/calcuts -l 5 -m 90 -u 280 PB.stat > cutoffs_5 2>calcults_5.log
+	/NVME/Software/purge_dups/bin/calcuts -l 5 -m 100 -u 280 PB.stat > cutoffs_6 2>calcults_6.log
+	/NVME/Software/purge_dups/bin/purge_dups -2 -T cutoffs_5 -c PB.base.cov ../output_scaffolds_test.fasta.split.self.paf.gz > dups.bed_5 2> purge_dups_5.log
+	/NVME/Software/purge_dups/bin/purge_dups -2 -T cutoffs_6 -c PB.base.cov ../output_scaffolds_test.fasta.split.self.paf.gz > dups.bed_6 2> purge_dups_6.log
+	cd manual_cutoff_4
+	/NVME/Software/purge_dups/bin/get_seqs ../dups.bed_5 ../../output_scaffolds_test.fasta
+	cd manual_cutoff_5
+	/NVME/Software/purge_dups/bin/get_seqs ../dups.bed_6 ../../output_scaffolds_test.fasta
+
+
 
 ## 2.Tell-seq tools for the linked reads
   Using the docker version of Tell-reads, Tell-link, Tell-sort 
