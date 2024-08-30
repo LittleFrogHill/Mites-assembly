@@ -951,5 +951,45 @@ The program outputs 3 files, suffixed with the tags:
  	exon_SNP <-read.table('exon.list')
 	wilcox_effsize(V1 ~ V3, data = exon_SNP)
   	t_effectSize <- cohens_d(V1 ~ V3, data = exon_SNP)
+## 18 annovar
+	/home/jbast/anaconda3/envs/BRAKER/bin/gtfToGenePred -genePredExt /home/shangao/Scratch/breaker/09maker/hap0/2bam/add_UTR/before/hap0_add_UTR.gtf3 hap0_add_UTR.txt
 
+	perl /home/shangao/software/annovar/retrieve_seq_from_fasta.pl --format refGene --seqfile /RAID/Data/Mites/Genomes/Ppr/German_eiffel/hap0/Ppr.hap0.softmasked.fasta hap0_add_UTR.txt --outfile hap0_add_UTR_mrna.fa
+	
+	mv Ppr_hap0_db/hap0_add_UTR.txt Ppr_hap0_db/hap0_add_UTR_refGene.txt
+	mv Ppr_hap0_db/hap0_add_UTR_mrna.fa Ppr_hap0_db/hap0_add_UTR_refGeneMrna.fa
+	/home/shangao/software/annovar/annotate_variation.pl -geneanno -dbtype refGene -out T502 --buildver hap0_add_UTR T502.vcf.avinput Ppr_hap0_db/
+	
+	grep -v 'gene' T502.ff.vcf_withgtf |grep -v 'mRNA'|grep -v 'CDS' > T502.ff.vcf_withgtf.filter
+	
+	python /home/shangao/script/python/03Gtf_tools/04stat_featrues_num.py -s T502.ff.vcf_withgtf.filter -o T502.ff.vcf_withgtf.filter.num
+	
+	python /home/shangao/script/python/03Gtf_tools/05stat_GTF_featrues_length.py -s hap0_add_UTR_add_intron.gff3 -o hap0_add_UTR_add_intron_feature_length.txt
+	
+	python /home/shangao/script/python/03Gtf_tools/06filter_featrues_num_GTF_length.py -s hap0_add_UTR_add_intron_feature_length.txt -o hap0_add_UTR_add_intron_feature_length.f.txt
+	
+	python /home/shangao/script/python/03Gtf_tools/08get_dea_SNP_density.py -s snp_density_all_gene.table -t dea.list -o dea_snp_density
+	python /home/shangao/script/python/03Gtf_tools/08get_dea_SNP_density.py -s snp_density_all_gene.table -t eea.list -o eea_snp_density
+	
+	awk -v OFS='\t' '$3=="gene"{print$1,$4-2000,$4,$9}' hap0_add_UTR_add_intron.gff3 > UTR3_2kb.gff
+	awk -v OFS='\t' '$3=="gene"{print$1,$5,$5+2000,$9}' hap0_add_UTR_add_intron.gff3 > UTR5_2kb.gff
+	
+	bedtools intersect -a T502.ff.vcf -b UTR5_2kb.gff -wa -wb > UTR5_2kb.gffwithvcf
+	
+	python /home/shangao/script/python/03Gtf_tools/07get_SNP_density.py -s UTR3_2kb.gffwithvcf -o UTR3_2kb.gffwithvcf.density
+	python /home/shangao/script/python/03Gtf_tools/07get_SNP_density.py -s UTR5_2kb.gffwithvcf -o UTR5_2kb.gffwithvcf.density
 
+## 19 heterozygosity
+### 19.1 fst
+	awk -v OFS='\t' '$4=="1"&&$4!="NA"{print$1,$2,$2+1,$4}' d-j.fst > d-j_fst1.bed
+	awk -v OFS='\t' '$4=="1"&&$4!="NA"{print$1,$2,$2+1,$4}' d-r.fst > d-r_fst1.bed
+	awk -v OFS='\t' '$4=="1"&&$4!="NA"{print$1,$2,$2+1,$4}' j-r.fst > j-r_fst1.bed
+	
+	grep 'gene' d-r_fst1.annoated.bed|awk '{print$9}'|sort|uniq|sed 's/ID=//g'|sed 's/;Name=.*//g' > d-r_fst1.annoated.bed.gene
+	bedtools intersect -a /RAID/Data/Mites/Genomes/Ppr/German_eiffel/hap0/Ppr.hap0.gff -b d-r_fst1.bed -wa -wb > d-r_fst1.annoate
+	
+	
+	bcftools view /home/hoeztopr/Data/hoeztopr/Ppr/vcf/vcf20/Ppr_gatk_all20.snp.vcf.gz -s T507_RU,T509_RU,T510_RU,T511_RU > russia2German.vcf
+	/home/shangao/software/annovar/convert2annovar.pl -format vcf4 russia2German.vcf -out russia2German
+	
+	/home/shangao/software/annovar/annotate_variation.pl -geneanno -dbtype refGene -out russia2German --buildver hap0_add_UTR russia2German /home/shangao/Scratch/annovar/Ppr_hap0_db/
