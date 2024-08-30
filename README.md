@@ -987,9 +987,57 @@ The program outputs 3 files, suffixed with the tags:
 	
 	grep 'gene' d-r_fst1.annoated.bed|awk '{print$9}'|sort|uniq|sed 's/ID=//g'|sed 's/;Name=.*//g' > d-r_fst1.annoated.bed.gene
 	bedtools intersect -a /RAID/Data/Mites/Genomes/Ppr/German_eiffel/hap0/Ppr.hap0.gff -b d-r_fst1.bed -wa -wb > d-r_fst1.annoate
+## 20 pca
+	#/NVME/Software/popgen/gatk-4.1.9.0/gatk VariantFiltration -V Ppr_gatk_all20.SNP.filtered_ind.vcf.gz --filter-expression "QD <2.0 || MQ <30.0 || FS >60.0 || SOR >5.0 || ReadPosRankSum < -8.0" --filter-name "PASS" -O /home/shangao/Scratch/pca/all_samples_mapped2Ger.vcf
+	
+	#awk '/^#/||$7=="PASS"||$7=="MQRankSum-12.5;ReadPosRankSum-8"||$7=="MQRankSum-12.5"||$7=="ReadPosRankSum-8"' Ppr_gatk_all25.snp_passed.vcf > Ppr_gatk_all25.snp_passed.hardfiltered.vcf
+	#awk '$5 !~ /([[:alpha:]]|*)+,([[:alpha:]]|*)/{print}' Ppr_gatk_all25.snp_passed.hardfiltered.vcf > Ppr_gatk_all25.snp_passed.hardfiltered.bi.vcf
+	
+	vcftools --gzvcf Ppr_gatk_all25.snp_passed.hardfiltered.bi.vcf  --out Ppr_gatk_all25.snp_passed.hardfiltered.bi  --plink
 	
 	
+	/home/shangao/Software/plink --noweb --file Ppr_gatk_all25.snp_passed.hardfiltered.bi --make-bed --out Ppr_gatk_all25.snp_passed.hardfiltered.bi_bfile
+	/home/shangao/Software/plink --threads 16 --bfile Ppr_gatk_all25.snp_passed.hardfiltered.bi_bfile --pca 25 --out Ppr_gatk_all25.snp_passed.hardfiltered.bi_bfile_pca25_bfile
+		
 	bcftools view /home/hoeztopr/Data/hoeztopr/Ppr/vcf/vcf20/Ppr_gatk_all20.snp.vcf.gz -s T507_RU,T509_RU,T510_RU,T511_RU > russia2German.vcf
 	/home/shangao/software/annovar/convert2annovar.pl -format vcf4 russia2German.vcf -out russia2German
 	
 	/home/shangao/software/annovar/annotate_variation.pl -geneanno -dbtype refGene -out russia2German --buildver hap0_add_UTR russia2German /home/shangao/Scratch/annovar/Ppr_hap0_db/
+### 20.1 plot
+	library(tidyverse)
+	library(data.table)
+	re1a = fread("Ppr_gatk_all25.snp_passed.hardfiltered.bi_bfile_pca25_bfile.eigenval")
+	re1b = fread("Ppr_gatk_all25.snp_passed.hardfiltered.bi_bfile_pca25_bfile.eigenvec")
+	re1a$por = re1a$V1/sum(re1a$V1)*100
+	re1b = fread("Ppr_gatk_all25.snp_passed.hardfiltered.bi_bfile_pca25_bfile.eigenvec")
+	pdf('pca_25_12.pdf')
+	ggplot(re1b,aes(x = V3,y = V4,color=V1)) + geom_point(size=1.5) + xlab(paste0("PC1 (",round(re1a$por[1],2),"%)")) +ylab(paste0("PC2 (",round(re1a$por[2],2),"%)"))+scale_color_manual(values = c("#953CCC", "#74BBF1", "#FFD500", "#A8F1AD"))+scale_x_continuous(limits=c(-0.4, 0.4))+geom_text_repel(aes(label=V2))+labs(color="Country")+theme_bw()
+	dev.off()
+	library(ggrepel) 
+	pdf('pca_25_12.pdf')
+	ggplot(re1b,aes(x = V3,y = V4,color=V1)) + geom_point(size=1.5) + xlab(paste0("PC1 (",round(re1a$por[1],2),"%)")) +ylab(paste0("PC2 (",round(re1a$por[2],2),"%)"))+scale_color_manual(values = c("#953CCC", "#74BBF1", "#FFD500", "#A8F1AD"))+scale_x_continuous(limits=c(-0.4, 0.4))+geom_text_repel(aes(label=V2))+labs(color="Country")+theme_bw()
+	pdf('pca_25_12.pdf')
+	ggplot(re1b,aes(x = V3,y = V4,color=V1)) + geom_point(size=1.5) + xlab(paste0("PC1 (",round(re1a$por[1],2),"%)")) +ylab(paste0("PC2 (",round(re1a$por[2],2),"%)"))+scale_color_manual(values = c("#953CCC", "#74BBF1", "#FFD500", "#A8F1AD","#CF9C67"))+scale_x_continuous(limits=c(-0.4, 0.4))+geom_text_repel(aes(label=V2))+labs(color="Country")+theme_bw()
+	dev.off()
+	pdf('pca_25_12.pdf')
+	ggplot(re1b,aes(x = V3,y = V4,color=V1)) + geom_point(size=1.5) + xlab(paste0("PC1 (",round(re1a$por[1],2),"%)")) +ylab(paste0("PC2 (",round(re1a$por[2],2),"%)"))+scale_color_manual(values = c("#CF9C67","#953CCC","#FFD500", "#74BBF1", "#A8F1AD"))+scale_x_continuous(limits=c(-0.4, 0.4))+geom_text_repel(aes(label=V2))+labs(color="Country")+theme_bw()
+	dev.off()
+	pdf('pca_25_12.pdf')
+	ggplot(re1b,aes(x = V3,y = V4,color=V1)) + geom_point(size=1.5) + xlab(paste0("PC1 (",round(re1a$por[1],2),"%)")) +ylab(paste0("PC2 (",round(re1a$por[2],2),"%)"))+scale_color_manual(values = c("#CF9C67","#953CCC", "#74BBF1", "#A8F1AD","#FFD500"))+scale_x_continuous(limits=c(-0.4, 0.4))+geom_text_repel(aes(label=V2))+labs(color="Country")+theme_bw()
+	dev.off()
+	pdf('pca_25_12.pdf')
+	ggplot(re1b,aes(x = V3,y = V4,color=V1)) + geom_point(size=1.5) + xlab(paste0("PC1 (",round(re1a$por[1],2),"%)")) +ylab(paste0("PC2 (",round(re1a$por[2],2),"%)"))+scale_color_manual(values = c("#CF9C67","#953CCC", "#A8F1AD","#FFD500", "#74BBF1"))+scale_x_continuous(limits=c(-0.4, 0.4))+geom_text_repel(aes(label=V2))+labs(color="Country")+theme_bw()
+	dev.off()
+	pdf('pca_25_23.pdf')
+	ggplot(re1b,aes(x = V4,y = V5,color=V1)) + geom_point(size=1.5) + xlab(paste0("PC1 (",round(re1a$por[1],2),"%)")) +ylab(paste0("PC2 (",round(re1a$por[2],2),"%)"))+scale_color_manual(values = c("#CF9C67","#953CCC", "#A8F1AD","#FFD500", "#74BBF1"))+scale_x_continuous(limits=c(-0.4, 0.4))+geom_text_repel(aes(label=V2))+labs(color="Country")+theme_bw()
+	dev.off()
+	pdf('pca_25_13.pdf')
+	ggplot(re1b,aes(x = V3,y = V5,color=V1)) + geom_point(size=1.5) + xlab(paste0("PC1 (",round(re1a$por[1],2),"%)")) +ylab(paste0("PC2 (",round(re1a$por[2],2),"%)"))+scale_color_manual(values = c("#CF9C67","#953CCC", "#A8F1AD","#FFD500", "#74BBF1"))+scale_x_continuous(limits=c(-0.4, 0.4))+geom_text_repel(aes(label=V2))+labs(color="Country")+theme_bw()
+	dev.off()
+	pdf('pca_25_13.pdf')
+	ggplot(re1b,aes(x = V3,y = V5,color=V1)) + geom_point(size=1.5) + xlab(paste0("PC1 (",round(re1a$por[1],2),"%)")) +ylab(paste0("PC3 (",round(re1a$por[3],2),"%)"))+scale_color_manual(values = c("#CF9C67","#953CCC", "#A8F1AD","#FFD500", "#74BBF1"))+scale_x_continuous(limits=c(-0.4, 0.4))+geom_text_repel(aes(label=V2))+labs(color="Country")+theme_bw()
+	dev.off()
+	pdf('pca_25_23.pdf')
+	ggplot(re1b,aes(x = V4,y = V5,color=V1)) + geom_point(size=1.5) + xlab(paste0("PC2 (",round(re1a$por[2],2),"%)")) +ylab(paste0("PC3 (",round(re1a$por[3],2),"%)"))+scale_color_manual(values = c("#CF9C67","#953CCC", "#A8F1AD","#FFD500", "#74BBF1"))+scale_x_continuous(limits=c(-0.4, 0.4))+geom_text_repel(aes(label=V2))+labs(color="Country")+theme_bw()
+	dev.off()
+	savehistory("plot25.R")
